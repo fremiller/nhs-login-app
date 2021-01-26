@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListRenderItem, ListRenderItemInfo, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Animated, ListRenderItem, ListRenderItemInfo, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { NavBar } from '../navbar/NavBar';
 
 import * as Colors from '../../styles/colors';
@@ -9,7 +9,7 @@ import CheckBox from '@react-native-community/checkbox';
 import { CheckBoxListItem } from '../CheckboxListItem';
 
 import {NhsLogin} from '../NhsLogin';
-import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
+import { StackHeaderProps, StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 
 import {RootStackParamList} from '../../App';
 
@@ -31,11 +31,24 @@ export class OpenidSettingsScreen extends React.Component<OpenidSettingsScreenPr
         } 
     }
 
+    static header(props: StackHeaderProps) {
+        const progress = Animated.add(props.scene.progress.current, props.scene.progress.next || 0);
+
+        const opacity = progress.interpolate({
+        inputRange: [0, 1, 2],
+        outputRange: [0, 1, 0],
+        });
+
+        return (
+            <Animated.View style={{opacity}}><StatusBar backgroundColor={Colors.Blue}></StatusBar>
+            <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>Scopes</Text>)} /></Animated.View>
+        )
+    }
+
     render() {
         return (
             <View style={styles.root}>
-                <StatusBar backgroundColor={Colors.Blue}></StatusBar>
-                <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>Scopes</Text>)} />
+                
 
                 <FlatList data={this.state.scopes} renderItem={(props) => this.scopeListRenderItem(props, this)}
                     keyExtractor={(item) => item.name}>

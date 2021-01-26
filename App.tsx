@@ -21,6 +21,8 @@ import { navigationRef } from "./components/RootNavigation";
 import { OpenidSettingsScreen } from './components/screens/OpenidSettingsScreen';
 import { NhsLogin } from './components/NhsLogin';
 
+import * as Colors from './styles/colors';
+
 export type RootStackParamList = {
   OpenidSettings: {loginManager: NhsLogin},
   Welcome: undefined,
@@ -36,10 +38,19 @@ export default class App extends React.Component {
   render() {return (
     <>
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="Welcome" component={WelcomeScreen}></Stack.Screen>
+      <Stack.Navigator headerMode="float" screenOptions={{
+        headerTintColor: Colors.Blue,
+        headerStyle: {
+          backgroundColor: Colors.Blue
+        }
+      }}>
+        <Stack.Screen name="Welcome" component={WelcomeScreen} options={{
+          header: WelcomeScreen.header,
+        }}></Stack.Screen>
         <Stack.Screen name="Dashboard" component={DashboardScreen}></Stack.Screen>
-        <Stack.Screen name="OpenidSettings" component={OpenidSettingsScreen}></Stack.Screen>
+        <Stack.Screen name="OpenidSettings" component={OpenidSettingsScreen} options={{
+          header: OpenidSettingsScreen.header,
+        }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
     </>
