@@ -11,7 +11,7 @@ import { CheckBoxListItem } from '../CheckboxListItem';
 import {NhsLogin} from '../NhsLogin';
 import { StackHeaderProps, StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 
-import {RootStackParamList} from '../../App';
+import {RootStackParamList, NhsLoginInstance} from '../../App';
 
 type OpenidSettingsScreenNavigationProp = StackScreenProps<RootStackParamList, 'OpenidSettings'>;
 
@@ -26,8 +26,8 @@ export interface OpenidSettingsScreenState {
 export class OpenidSettingsScreen extends React.Component<OpenidSettingsScreenProps, OpenidSettingsScreenState> {
     constructor(props: OpenidSettingsScreenProps){
         super(props);
-        this.state ={
-            scopes: props.route.params.loginManager.GetScopes()
+        this.state = {
+            scopes: NhsLoginInstance.GetScopes()
         } 
     }
 
@@ -67,7 +67,7 @@ export class OpenidSettingsScreen extends React.Component<OpenidSettingsScreenPr
                 this.setState({
                     scopes: foo
                 });
-                el.props.route.params.loginManager.SetScopes(this.state.scopes.filter((scope)=>scope.enabled).map((scope)=>scope.name));
+                NhsLoginInstance.SetScopes(this.state.scopes.filter((scope)=>scope.enabled).map((scope)=>scope.name));
             }} title={props.item.name} checked={props.item.enabled} disabled={props.item.disabled}></CheckBoxListItem>
         );
     }

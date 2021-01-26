@@ -24,13 +24,13 @@ import { NhsLogin } from './components/NhsLogin';
 import * as Colors from './styles/colors';
 
 export type RootStackParamList = {
-  OpenidSettings: {loginManager: NhsLogin},
+  OpenidSettings: undefined,
   Welcome: undefined,
   Dashboard: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>();
-
+export const NhsLoginInstance = new NhsLogin();
 
 declare const global: {HermesInternal: null | {}};
 

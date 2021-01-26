@@ -22,6 +22,7 @@ export class NhsLogin {
     }
 
     async NhsLoginAuthorise() {
+        console.log(`Logging in with scopes: ${this.config.scopes}`);
         let result = await authorize(this.config).catch((e) => {
             console.log(e);
         });
@@ -47,6 +48,7 @@ export class NhsLogin {
     }
 
     SetScopes(scopes: string[]){
+        console.log(`new scopes: ${scopes}`);
         this.config.scopes = scopes;
     }
 }

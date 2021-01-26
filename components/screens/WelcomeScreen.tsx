@@ -13,7 +13,7 @@ import { NhsLoginButton } from '../NhsLoginButton';
 import {NhsButton} from '../NhsButton';
 import { TextInput } from 'react-native-gesture-handler';
 
-import {RootStackParamList} from '../../App';
+import {RootStackParamList, NhsLoginInstance} from '../../App';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 
 
@@ -60,13 +60,11 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                 <View style={styles.mainView}>
                     <NhsLoginButton onPress={async () => {
                         this.setState({loading: true});
-                        await loginManager.NhsLoginAuthorise();
+                        await NhsLoginInstance.NhsLoginAuthorise();
                         this.setState({loading: false});
                     }}></NhsLoginButton>
                     <NhsButton onPress={()=>{
-                        this.props.navigation.navigate('OpenidSettings', {
-                            loginManager: loginManager
-                        });
+                        this.props.navigation.navigate('OpenidSettings');
                     }} text="Modify Scopes" style="secondary"></NhsButton>
                     <NhsButton onPress={()=>{}} text="Clear Login Data" style="secondary"></NhsButton>
                 </View>:<View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
