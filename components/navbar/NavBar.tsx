@@ -1,12 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import * as Colors from '../../styles/colors';
 
+//@ts-ignore
 import BackArrow from '../../assets/icons/icon-chevron-left.svg';
 
+import * as RootNavigation from '../RootNavigation';
+
 interface NavBarProps {
-    center(): JSX.Element,
+    center?(): JSX.Element,
+    left?(): JSX.Element,
     backButtonEnabled: boolean
 }
 
@@ -15,10 +19,16 @@ export class NavBar extends React.Component<NavBarProps> {
     render() {
         return (
             <View style={styles.root}>
-                {this.props.backButtonEnabled ? <BackArrow width={40} height={40} fill={Colors.White}></BackArrow> : undefined}
-                <View style={styles.center}>
+                {this.props.backButtonEnabled ? <Pressable accessibilityLabel="Back Button" accessibilityRole="button" onPress={()=>{
+                    RootNavigation.goBack();
+                }}><BackArrow width={40} height={40} fill={Colors.White}></BackArrow></Pressable> : undefined}
+               {this.props.center && <View style={styles.center}>
                     {this.props.center()}
-                </View>
+                </View>}
+                {this.props.left && <View style={styles.left}>
+                    {this.props.left()}
+                </View>}
+
             </View>
         )
     }
@@ -42,6 +52,14 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: 0
+    },
+    left: {
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         flexGrow: 1,
         flexShrink: 1,
         flexBasis: 0
