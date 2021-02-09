@@ -52,6 +52,10 @@
       "jsx",
       "json",
       "node"
-    ]
+    ],
+    "moduleNameMapper": {
+      "\\.svg": "<rootDir>/__mocks__/SvgMock.ts",
+      "\\.png": "<rootDir>/__mocks__/SvgMock.ts"
+    }
   }
 }

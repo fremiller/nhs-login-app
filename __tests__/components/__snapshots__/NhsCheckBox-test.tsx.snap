@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<NhsCheckBox> displays a check when value=true 1`] = `
+<View
+  style={
+    Object {
+      "borderColor": "#4c6272",
+      "borderWidth": 2,
+      "height": 40,
+      "marginRight": 10,
+      "width": 40,
+    }
+  }
+>
+  <SvgMock />
+</View>
+`;
+
+exports[`<NhsCheckBox> displays no check when value=false 1`] = `
+<View
+  style={
+    Object {
+      "borderColor": "#4c6272",
+      "borderWidth": 2,
+      "height": 40,
+      "marginRight": 10,
+      "width": 40,
+    }
+  }
+/>
+`;

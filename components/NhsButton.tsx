@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, StyleSheet, View, Text, TouchableOpacity, ViewStyle, GestureResponderEvent } from 'react-native';
-import { BaseButton, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { Button, StyleSheet, View, Text, TouchableWithoutFeedback, ViewStyle, GestureResponderEvent } from 'react-native';
 import * as Colors from '../styles/colors';
 
 import {SetScopes} from './NhsLogin';
