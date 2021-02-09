@@ -1,4 +1,5 @@
 import 'react-native';
+import 'react-native-gesture-handler/jestSetup';
 
 jest.mock('react-native-gesture-handler', () => {
     // eslint-disable-next-line global-require
