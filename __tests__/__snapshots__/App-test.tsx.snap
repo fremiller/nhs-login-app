@@ -384,7 +384,7 @@ exports[`renders correctly 1`] = `
                             </View>
                           </View>
                           <View
-                            accessibilityLabel="Clear Login Data"
+                            accessibilityLabel="Clear Data"
                             accessibilityRole="button"
                             accessible={true}
                             focusable={true}
@@ -460,7 +460,7 @@ exports[`renders correctly 1`] = `
                                   }
                                 }
                               >
-                                Clear Login Data
+                                Clear Data
                               </Text>
                             </View>
                           </View>

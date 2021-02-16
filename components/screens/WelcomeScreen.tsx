@@ -66,7 +66,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                     <NhsButton onPress={()=>{
                         this.props.navigation.navigate('OpenidSettings');
                     }} text="Modify Scopes" style="secondary"></NhsButton>
-                    <NhsButton onPress={()=>{}} text="Clear Login Data" style="secondary"></NhsButton>
+                    <NhsButton onPress={()=>{}} text="Clear Data" style="secondary"></NhsButton>
                 </View>:<View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
             </View>
         )
