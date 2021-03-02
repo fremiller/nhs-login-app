@@ -22,11 +22,15 @@ import { OpenidSettingsScreen } from './components/screens/OpenidSettingsScreen'
 import { NhsLogin } from './components/NhsLogin';
 
 import * as Colors from './styles/colors';
+import { OpenIDDetailsScreen } from './components/screens/OpenidDetails';
+import { EnvironmentScreen } from './components/screens/EnvironmentScreen';
 
 export type RootStackParamList = {
   OpenidSettings: undefined,
   Welcome: undefined,
-  Dashboard: undefined
+  Dashboard: undefined,
+  OpenidDetails: undefined,
+  Environment: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -47,9 +51,17 @@ export default class App extends React.Component {
         <Stack.Screen name="Welcome" component={WelcomeScreen} options={{
           header: WelcomeScreen.header,
         }}></Stack.Screen>
-        <Stack.Screen name="Dashboard" component={DashboardScreen}></Stack.Screen>
+        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{
+          header: DashboardScreen.header,
+        }}></Stack.Screen>
         <Stack.Screen name="OpenidSettings" component={OpenidSettingsScreen} options={{
           header: OpenidSettingsScreen.header,
+        }}></Stack.Screen>
+        <Stack.Screen name="OpenidDetails" component={OpenIDDetailsScreen} options={{
+          header: OpenIDDetailsScreen.header,
+        }}></Stack.Screen>
+        <Stack.Screen name="Environment" component={EnvironmentScreen} options={{
+          header: EnvironmentScreen.header,
         }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

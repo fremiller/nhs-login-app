@@ -4,7 +4,6 @@ import { NavBar } from '../navbar/NavBar';
 
 import * as Colors from '../../styles/colors';
 import { FlatList } from 'react-native-gesture-handler';
-import CheckBox from '@react-native-community/checkbox';
 
 import { CheckBoxListItem } from '../CheckboxListItem';
 
@@ -48,8 +47,6 @@ export class OpenidSettingsScreen extends React.Component<OpenidSettingsScreenPr
     render() {
         return (
             <View style={styles.root}>
-                
-
                 <FlatList data={this.state.scopes} renderItem={(props) => this.scopeListRenderItem(props, this)}
                     keyExtractor={(item) => item.name}>
 

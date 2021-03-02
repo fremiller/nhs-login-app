@@ -21,20 +21,35 @@ export class NhsLogin {
         dangerouslyAllowInsecureHttpRequests: true,
     }
 
+    nhsUserInfo: any;
+
+    appServerUrl: string = "http://192.168.1.43:3000";
+
     async NhsLoginAuthorise() {
-        console.log(`Logging in with scopes: ${this.config.scopes}`);
-        let result = await authorize(this.config).catch((e) => {
-            console.log(e);
-        });
-        if (!result){
-            return;
-        }
-        console.log(`Authorization code: ${result.authorizationCode}`);
-        await this.AuthorizationCodeExchange(result.authorizationCode);
+        // console.log(`Logging in with scopes: ${this.config.scopes}`);
+        // let result = await authorize(this.config).catch((e) => {
+        //     console.log(e);
+        // });
+        // if (!result){
+        //     return;
+        // }
+        // console.log(`Authorization code: ${result.authorizationCode}`);
+        await this.AuthorizationCodeExchange("pog");
     }
 
     async AuthorizationCodeExchange(authCode: string){
-
+        const nhsAuthResponse = await fetch("http://192.168.1.43:3000/code?code=" + authCode, {
+            method: "POST",
+        }).then(async (res) => {
+            return await res.json();
+        }).catch(err => {
+            console.log(err);
+            return undefined;
+        });
+        if (!nhsAuthResponse){
+            return;
+        }
+        this.nhsUserInfo = nhsAuthResponse.nhsUserInfo;
     }
 
     GetScopes(): {

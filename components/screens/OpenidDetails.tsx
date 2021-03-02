@@ -3,16 +3,19 @@ import { ActivityIndicator, Animated, StatusBar, StyleSheet, Text, View } from '
 import * as Colors from '../../styles/colors';
 
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
-import {RootStackParamList} from '../../App';
+import {RootStackParamList, NhsLoginInstance} from '../../App';
 import { NavBar } from '../navbar/NavBar';
 import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';
+import { ObjectTable } from '../ObjectTable';
 
-type DashboardScreenNavigationProps = StackScreenProps<RootStackParamList, 'Dashboard'>;
+type OpenIDDetailsScreenNavigationProps = StackScreenProps<RootStackParamList, 'OpenidDetails'>;
 
-export type DashboardScreenProps = DashboardScreenNavigationProps & {};
+export type OpenIDDetailsScreenProps = {
+    navigation: OpenIDDetailsScreenNavigationProps
+}
 
-export class DashboardScreen extends React.Component<DashboardScreenProps, {}> {
+export class OpenIDDetailsScreen extends React.Component<OpenIDDetailsScreenProps, {}> {
     static header(props: StackHeaderProps) {
         const progress = Animated.add(props.scene.progress.current, props.scene.progress.next || 0);
 
@@ -23,18 +26,15 @@ export class DashboardScreen extends React.Component<DashboardScreenProps, {}> {
 
         return (
             <Animated.View style={{opacity}}><StatusBar backgroundColor={Colors.Blue}></StatusBar>
-            <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>Chats</Text>)} /></Animated.View>
+            <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>OpenID Details</Text>)} /></Animated.View>
         )
     }
 
     render() {
         return (
             <View style={styles.mainView}>
-                <NhsCard title="Chat Disabled" body="Chat functionality has been disabled on the app server."></NhsCard>
-                <NhsButton text="OpenID Details" style="primary" onPress={() => {
-                    this.props.navigation.navigate("OpenidDetails");
-                }}></NhsButton>
-                
+                <Text style={styles.titleText}>Userinfo response</Text>
+                <ObjectTable obj={NhsLoginInstance.nhsUserInfo}></ObjectTable>
             </View>
         )
     }
@@ -50,6 +50,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: Colors.White,
         marginLeft: 10
+    },
+    titleText: {
+        fontSize: 21,
+        fontWeight: 'bold',
+        color: Colors.TextColor
     },
     mainView: {
         display: 'flex',

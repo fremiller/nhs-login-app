@@ -19,9 +19,7 @@ import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 
 type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome'>;
 
-export type WelcomeScreenProps = {
-    navigation: WelcomeScreenNavigationProp
-}
+export type WelcomeScreenProps = WelcomeScreenNavigationProp & {};
 
 export interface WelcomeScreenState {
     loading: boolean
@@ -62,11 +60,16 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                         this.setState({loading: true});
                         await NhsLoginInstance.NhsLoginAuthorise();
                         this.setState({loading: false});
+                        console.log("hi");
+                        this.props.navigation.navigate('Dashboard');
                     }}></NhsLoginButton>
                     <NhsButton onPress={()=>{
                         this.props.navigation.navigate('OpenidSettings');
                     }} text="Modify Scopes" style="secondary"></NhsButton>
                     <NhsButton onPress={()=>{}} text="Clear Login Data" style="secondary"></NhsButton>
+                    <NhsButton onPress={() => {
+                        this.props.navigation.navigate('Environment');
+                    }} text="Change Environment" style="secondary"></NhsButton>
                 </View>:<View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
             </View>
         )
