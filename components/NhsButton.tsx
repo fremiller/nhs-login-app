@@ -2,8 +2,6 @@ import React from 'react';
 import { Button, StyleSheet, View, Text, TouchableWithoutFeedback, ViewStyle, GestureResponderEvent } from 'react-native';
 import * as Colors from '../styles/colors';
 
-import {SetScopes} from './NhsLogin';
-
 type NhsButtonStyle = 'primary' | 'secondary';
 
 export interface NhsButtonProps {

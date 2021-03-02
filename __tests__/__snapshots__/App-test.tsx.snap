@@ -464,6 +464,87 @@ exports[`renders correctly 1`] = `
                               </Text>
                             </View>
                           </View>
+                          <View
+                            accessibilityLabel="Change Environment"
+                            accessibilityRole="button"
+                            accessible={true}
+                            focusable={true}
+                            onClick={[Function]}
+                            onResponderGrant={[Function]}
+                            onResponderMove={[Function]}
+                            onResponderRelease={[Function]}
+                            onResponderTerminate={[Function]}
+                            onResponderTerminationRequest={[Function]}
+                            onStartShouldSetResponder={[Function]}
+                            style={
+                              Object {
+                                "alignItems": "center",
+                                "height": 57,
+                                "marginTop": 5,
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                Array [
+                                  Object {
+                                    "alignItems": "center",
+                                    "height": 53,
+                                    "justifyContent": "center",
+                                    "left": 0,
+                                    "position": "absolute",
+                                    "top": 0,
+                                    "width": "100%",
+                                    "zIndex": -1,
+                                  },
+                                ]
+                              }
+                            >
+                              <View
+                                style={
+                                  Object {
+                                    "alignItems": "center",
+                                    "backgroundColor": "#414141",
+                                    "borderRadius": 4,
+                                    "height": 53,
+                                    "justifyContent": "center",
+                                    "left": 0,
+                                    "marginTop": 4,
+                                    "position": "absolute",
+                                    "top": 0,
+                                    "width": "100%",
+                                    "zIndex": 3,
+                                  }
+                                }
+                              />
+                            </View>
+                            <View
+                              style={
+                                Object {
+                                  "backgroundColor": "#4c6272",
+                                  "borderRadius": 4,
+                                  "height": 53,
+                                  "marginTop": 0,
+                                  "padding": 14,
+                                  "textTransform": "none",
+                                  "width": "100%",
+                                }
+                              }
+                            >
+                              <Text
+                                style={
+                                  Object {
+                                    "color": "#ffffff",
+                                    "fontSize": 19,
+                                    "fontWeight": "bold",
+                                    "textAlign": "center",
+                                  }
+                                }
+                              >
+                                Change Environment
+                              </Text>
+                            </View>
+                          </View>
                         </View>
                       </View>
                     </View>
