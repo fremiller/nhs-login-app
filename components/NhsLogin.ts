@@ -1,4 +1,5 @@
 import { AuthConfiguration, authorize } from 'react-native-app-auth';
+import MMKVStorage from "react-native-mmkv-storage";
 
 const possibleScopes = [
     'openid',
@@ -10,6 +11,12 @@ const possibleScopes = [
     'gp_integration_credentials',
     'client_metadata'
 ]
+
+export interface Environment {
+    client_id: string,
+    url: string,
+    name: string,
+}
 
 export class NhsLogin {
     config: AuthConfiguration = {
@@ -23,7 +30,39 @@ export class NhsLogin {
 
     nhsUserInfo: any;
 
-    appServerUrl: string = "http://192.168.1.43:3000";
+    appServerUrl: string = "";
+
+    env: Environment;
+
+    mmkv = new MMKVStorage.Loader().initialize();
+
+    constructor(){
+        
+    }
+
+    async updateEnvironment(appServerUrl: string, env: Environment){
+        await this.mmkv.setStringAsync("server_url", appServerUrl);
+        await this.mmkv.setStringAsync("env.client_id", env.client_id);
+        await this.mmkv.setStringAsync("env.name", env.name);
+        await this.mmkv.setStringAsync("env.url", env.url);
+        this.appServerUrl = appServerUrl;
+        this.env = env;
+        this.updateConfigFromEnv();
+    }
+
+    updateConfigFromEnv(){
+        this.config.clientId = this.env.client_id;
+        this.config.issuer = this.env.url;
+    }
+
+    async _constructor(){
+        this.appServerUrl = await this.mmkv.getStringAsync("server_url");
+        this.env.client_id = await this.mmkv.getStringAsync("env.client_id");
+        this.env.name = await this.mmkv.getStringAsync("env.name");
+        this.env.url = await this.mmkv.getStringAsync("env.url");
+        console.log(this.env);
+        this.updateConfigFromEnv();
+    }
 
     async NhsLoginAuthorise() {
         // console.log(`Logging in with scopes: ${this.config.scopes}`);
@@ -38,7 +77,7 @@ export class NhsLogin {
     }
 
     async AuthorizationCodeExchange(authCode: string){
-        const nhsAuthResponse = await fetch("http://192.168.1.43:3000/code?code=" + authCode, {
+        const nhsAuthResponse = await fetch(this.appServerUrl + "/code?code=" + authCode, {
             method: "POST",
         }).then(async (res) => {
             return await res.json();
