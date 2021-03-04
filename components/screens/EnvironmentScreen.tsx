@@ -62,13 +62,13 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
         const envURL = url + "/env";
         const response = await fetch(envURL, {
             method: "GET"
-        }).then((res)=>res.json())
-        .catch((err) => {
-            this.setState({
-                errorText: "Failed to connect to server.\n" + err.toString(),
-                loading: false
+        }).then((res) => res.json())
+            .catch((err) => {
+                this.setState({
+                    errorText: "Failed to connect to server.\n" + err.toString(),
+                    loading: false
+                });
             });
-        });
         console.log(response);
         if (!response) {
             return;
@@ -79,37 +79,50 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
         })
     }
 
+    async onConnectButtonPressed(_this: this) {
+        _this.setState({ url: _this.state.urlInput, loading: true });
+        await _this.fetchEnvironments(_this.state.urlInput);
+        _this.setState({ loading: false });
+    }
+
+    async onEnvButtonPressed(_this: this, index: number){
+        console.log("foo");
+        // if (!this.state.url || !this.state.environments || this.state.environments.length >= index){
+        //     return;
+        // }
+        console.log("Setting up environments");
+        this.setState({
+            loading: true
+        });
+        console.log(this.state.urlInput, this.state.environments[index])
+        await NhsLoginInstance.updateEnvironment(this.state.urlInput, this.state.environments[index]);
+        this.props.navigation.navigate("Welcome");
+    }
+
     render() {
         const _this = this;
         return (
             <View style={styles.mainView}>
-                {this.state.loading ? <ActivityIndicator size='large' color="#0000ff"></ActivityIndicator> : <>
-                    {this.state.errorText ? <NhsCard title="Error" body={this.state.errorText}></NhsCard> : undefined}
-                    {this.state.environments ? <> 
-                        <Text style={styles.titleText}>Select Environment</Text>
-                        <Text style={styles.text}>Environment not listed? Each environment requires configuration on the server.</Text>
-                        {this.state.environments.map((env: any, index: number) => {
-                            return <TouchableOpacity key={index} style={styles.envButton}>
+                <ActivityIndicator size='large' color="#0000ff" style={{ display: !this.state.loading ? "none" : undefined }}></ActivityIndicator>
+                {this.state.errorText ? <NhsCard title="Error" body={this.state.errorText}></NhsCard> : undefined}
+                
+                {this.state.environments ? <View>
+                    <Text style={styles.titleText}>Select Environment</Text>
+                    <Text style={styles.text}>Environment not listed? Each environment requires configuration on the server.</Text>
+                    {this.state.environments.map((env: any, index: number) => {
+                        return <TouchableOpacity key={index} style={styles.envButton} onPress={() => this.onEnvButtonPressed(this, index)}>
                             <Text style={styles.envTitle}>{env.name}</Text>
                             <Text style={styles.envUrl}>{env.url}</Text>
-                            </TouchableOpacity>
-                        })}
-                    </> : // !this.state.environments
-                    <>
+                        </TouchableOpacity>
+                    })}</View>:undefined}
+                <View style={{ display: this.state.environments ? "none" : "flex" }}>
                     <NhsCard title="Server Configuration" body="Download the server from https://github.com/fishfred/nhs-login-app-server"></NhsCard>
                     <Text style={styles.label}>App Server URL</Text>
-                    <TextInput style={components.textField} onChangeText={(text) => {
+                    <TextInput keyboardType="url" style={components.textField} onChangeText={(text) => {
                         this.setState({ urlInput: text })
                     }} value={this.state.urlInput}></TextInput>
-                    <NhsButton text="Connect" onPress={async () => {
-                        _this.setState({ url: this.state.urlInput, loading: true });
-                        await _this.fetchEnvironments(this.state.urlInput);
-                        _this.setState({ loading: false });
-                    }} style="primary"></NhsButton>
-                    </>
-    }
-                </>
-                }
+                    <NhsButton text="Connect" onPress={() => this.onConnectButtonPressed(this)} style="primary"></NhsButton>
+                </View>
             </View>
         )
     }
