@@ -10,7 +10,7 @@ import { CheckBoxListItem } from '../CheckboxListItem';
 import {NhsLogin} from '../NhsLogin';
 import { StackHeaderProps, StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 
-import {RootStackParamList, NhsLoginInstance} from '../../App';
+import {RootStackParamList, NhsLoginInstance} from '../../services';
 
 type OpenidSettingsScreenNavigationProp = StackScreenProps<RootStackParamList, 'OpenidSettings'>;
 
