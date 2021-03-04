@@ -8,11 +8,11 @@ import { NavBar } from "../navbar/NavBar";
 import NhsLogo from "../../assets/icons/logo-nhs.svg";
 
 import * as RootNavigation from '../RootNavigation';
-import { NhsLogin } from '../NhsLogin';
+import { Environment, NhsLogin } from '../NhsLogin';
 import { NhsLoginButton } from '../NhsLoginButton';
 import { NhsButton } from '../NhsButton';
 
-import { RootStackParamList, NhsLoginInstance } from '../../App';
+import { RootStackParamList, NhsLoginInstance } from '../../services';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 import { components } from '../../styles/components';
 import { NhsCard } from '../NhsCard';
@@ -28,7 +28,7 @@ export interface EnvironmentScreenState {
     url?: string,
     urlInput: string,
     errorText?: string,
-    environments: any
+    environments: Environment[]
 }
 
 const loginManager = new NhsLogin();
@@ -41,7 +41,7 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
             url: undefined,
             urlInput: NhsLoginInstance.appServerUrl,
             errorText: undefined,
-            environments: undefined
+            environments: []
         }
     }
     static header(props: StackHeaderProps) {
@@ -106,7 +106,7 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
                 <ActivityIndicator size='large' color="#0000ff" style={{ display: !this.state.loading ? "none" : undefined }}></ActivityIndicator>
                 {this.state.errorText ? <NhsCard title="Error" body={this.state.errorText}></NhsCard> : undefined}
                 
-                {this.state.environments ? <View>
+                {this.state.environments.length > 0 ? <View>
                     <Text style={styles.titleText}>Select Environment</Text>
                     <Text style={styles.text}>Environment not listed? Each environment requires configuration on the server.</Text>
                     {this.state.environments.map((env: any, index: number) => {
@@ -115,7 +115,7 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
                             <Text style={styles.envUrl}>{env.url}</Text>
                         </TouchableOpacity>
                     })}</View>:undefined}
-                <View style={{ display: this.state.environments ? "none" : "flex" }}>
+                <View style={{ display: this.state.environments.length > 0 ? "none" : "flex" }}>
                     <NhsCard title="Server Configuration" body="Download the server from https://github.com/fishfred/nhs-login-app-server"></NhsCard>
                     <Text style={styles.label}>App Server URL</Text>
                     <TextInput keyboardType="url" style={components.textField} onChangeText={(text) => {

@@ -1,5 +1,7 @@
 import { AuthConfiguration, authorize } from 'react-native-app-auth';
 import MMKVStorage from "react-native-mmkv-storage";
+// import { MessagingInstance, setMessagingInstance } from '../services';
+import { Messaging } from './Messaging';
 
 const possibleScopes = [
     'openid',
@@ -26,25 +28,30 @@ export class NhsLogin {
         scopes: ['openid'],
         skipCodeExchange: true,
         dangerouslyAllowInsecureHttpRequests: true,
+        additionalParameters: {
+            vtr: "[\"P0.Cp\"]"
+        }
     }
 
     nhsUserInfo: any;
 
     appServerUrl: string = "";
 
-    env: Environment;
+    env: Environment = {
+        client_id: "",
+        name: "",
+        url: ""
+    };
 
     mmkv = new MMKVStorage.Loader().initialize();
 
     constructor(){
-        
+        this._constructor();
     }
 
     async updateEnvironment(appServerUrl: string, env: Environment){
         await this.mmkv.setStringAsync("server_url", appServerUrl);
-        await this.mmkv.setStringAsync("env.client_id", env.client_id);
-        await this.mmkv.setStringAsync("env.name", env.name);
-        await this.mmkv.setStringAsync("env.url", env.url);
+        await this.mmkv.setMapAsync("env", env);
         this.appServerUrl = appServerUrl;
         this.env = env;
         this.updateConfigFromEnv();
@@ -57,23 +64,28 @@ export class NhsLogin {
 
     async _constructor(){
         this.appServerUrl = await this.mmkv.getStringAsync("server_url");
-        this.env.client_id = await this.mmkv.getStringAsync("env.client_id");
-        this.env.name = await this.mmkv.getStringAsync("env.name");
-        this.env.url = await this.mmkv.getStringAsync("env.url");
+        const new_env = await this.mmkv.getMapAsync("env") as Environment;
+        if (new_env && new_env.client_id){
+            this.env = new_env;
+        }
         console.log(this.env);
         this.updateConfigFromEnv();
     }
 
+    readyToAuthorise(){
+        return (this.config.clientId  && this.config.clientId.length > 0);
+    }
+
     async NhsLoginAuthorise() {
-        // console.log(`Logging in with scopes: ${this.config.scopes}`);
-        // let result = await authorize(this.config).catch((e) => {
-        //     console.log(e);
-        // });
-        // if (!result){
-        //     return;
-        // }
-        // console.log(`Authorization code: ${result.authorizationCode}`);
-        await this.AuthorizationCodeExchange("pog");
+        console.log(`Logging in with scopes: ${this.config.scopes}`);
+        let result = await authorize(this.config).catch((e) => {
+            console.log(e);
+        });
+        if (!result){
+            return;
+        }
+        console.log(`Authorization code: ${result.authorizationCode}`);
+        await this.AuthorizationCodeExchange(result.authorizationCode);
     }
 
     async AuthorizationCodeExchange(authCode: string){
@@ -89,6 +101,9 @@ export class NhsLogin {
             return;
         }
         this.nhsUserInfo = nhsAuthResponse.nhsUserInfo;
+        if (nhsAuthResponse.chat){
+            // setMessagingInstance(new Messaging(this.appServerUrl, nhsAuthResponse.appToken));
+        }
     }
 
     GetScopes(): {

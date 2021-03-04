@@ -25,16 +25,9 @@ import * as Colors from './styles/colors';
 import { OpenIDDetailsScreen } from './components/screens/OpenidDetails';
 import { EnvironmentScreen } from './components/screens/EnvironmentScreen';
 
-export type RootStackParamList = {
-  OpenidSettings: undefined,
-  Welcome: undefined,
-  Dashboard: undefined,
-  OpenidDetails: undefined,
-  Environment: undefined
-}
+import {RootStackParamList} from './services';
 
 const Stack = createStackNavigator<RootStackParamList>();
-export const NhsLoginInstance = new NhsLogin();
 
 declare const global: {HermesInternal: null | {}};
 
