@@ -34,7 +34,6 @@ export class DashboardScreen extends React.Component<DashboardScreenProps, {}> {
                 <NhsButton text="OpenID Details" style="primary" onPress={() => {
                     this.props.navigation.navigate("OpenidDetails");
                 }}></NhsButton>
-                
             </View>
         )
     }

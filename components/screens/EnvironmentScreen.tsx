@@ -31,8 +31,6 @@ export interface EnvironmentScreenState {
     environments: Environment[]
 }
 
-const loginManager = new NhsLogin();
-
 export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, EnvironmentScreenState> {
     constructor(props: EnvironmentScreenProps) {
         super(props);
@@ -86,11 +84,9 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
     }
 
     async onEnvButtonPressed(_this: this, index: number){
-        console.log("foo");
         // if (!this.state.url || !this.state.environments || this.state.environments.length >= index){
         //     return;
         // }
-        console.log("Setting up environments");
         this.setState({
             loading: true
         });
