@@ -39,7 +39,7 @@ export class NhsLogin {
         vtr: "[\"P0.Cp\"]"
     }
 
-    nhsUserInfo: any;
+    nhsIdTokenPayload: any;
 
     idToken?: string;
 
@@ -52,8 +52,13 @@ export class NhsLogin {
     };
 
     mmkv = new MMKVStorage.Loader().initialize();
+    lastAuthorizationCode = ""
 
     constructor() {
+        if (NhsLogin.instance){
+            console.warn("NhsLogin instance already exists!");
+            return;
+        }
         this._constructor();
         Linking.addEventListener("url", this.onDeepLink);
         NhsLogin.instance = this;
@@ -92,34 +97,45 @@ export class NhsLogin {
 
     onIdTokenReceived?: () => void;
 
-    onDeepLink(evt: { url: string }) {
+    async onDeepLink(evt: { url: string }) {
         const _this = NhsLogin.instance;
         console.log(evt.url);
         var regex = /[?&]([^=#]+)=([^&#]*)/g,
-        params: any = {},
-        match;
+            params: any = {},
+            match;
         while (match = regex.exec(evt.url)) {
             params[match[1]] = match[2];
         }
-        let {token} = params;
+        let { code } = params;
+        if (!code || code == "undefined" || code == _this.lastAuthorizationCode) {
+            code = undefined;
+            return;
+        }
+        _this.lastAuthorizationCode = code;
+        console.log("Authorization code: " + code);
+        await _this.AuthorizationCodeExchange(code);
         // console.log(token);
-        if (!token || token == "undefined") {
-            token = undefined;
-            return;
-        }
-        _this.idToken = token;
-        if (!_this.idToken){
-            return;
-        }
-        _this.idTokenDecode(_this.idToken);
-        if (NhsLogin.instance.onIdTokenReceived) {
-            NhsLogin.instance.onIdTokenReceived();
-        }
+        // if (!token || token == "undefined") {
+        //     token = undefined;
+        //     return;
+        // }
+        // _this.idToken = token;
+        // if (!_this.idToken){
+        //     return;
+        // }
+        // _this.idTokenDecode(_this.idToken);
+        // if (NhsLogin.instance.onIdTokenReceived) {
+        //     NhsLogin.instance.onIdTokenReceived();
+        // }
     }
 
     idTokenDecode(idToken: string) {
-        NhsLogin.instance.nhsUserInfo = jwt_decode(idToken);
-        console.log(NhsLogin.instance.nhsUserInfo);
+        const payload = jwt_decode(idToken);
+        if (!payload){
+            return;
+        }
+        NhsLogin.instance.nhsIdTokenPayload = payload;
+        console.log(NhsLogin.instance.nhsIdTokenPayload);
     }
 
     NhsLoginAuthorise(onComplete: () => void) {
@@ -133,11 +149,12 @@ export class NhsLogin {
         //     return;
         // }
         // console.log(`Authorization code: ${result.authorizationCode}`);
-        // await this.AuthorizationCodeExchange(result.authorizationCode);
+        // 
     }
 
     async AuthorizationCodeExchange(authCode: string) {
-        const nhsAuthResponse = await fetch(this.appServerUrl + "/code?code=" + authCode, {
+        console.log("Auth code exchange");
+        const nhsAuthResponse = await fetch(this.appServerUrl + "/token?code=" + authCode, {
             method: "POST",
         }).then(async (res) => {
             return await res.json();
@@ -148,7 +165,11 @@ export class NhsLogin {
         if (!nhsAuthResponse) {
             return;
         }
-        this.nhsUserInfo = nhsAuthResponse.nhsUserInfo;
+        this.idTokenDecode(nhsAuthResponse.id_token);
+        // this.idToken = nhsAuthResponse.nhsUserInfo;
+        if (this.onIdTokenReceived) {
+            this.onIdTokenReceived();
+        }
         if (nhsAuthResponse.chat) {
             // setMessagingInstance(new Messaging(this.appServerUrl, nhsAuthResponse.appToken));
         }

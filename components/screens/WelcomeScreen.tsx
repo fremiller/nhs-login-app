@@ -25,8 +25,6 @@ export interface WelcomeScreenState {
     loading: boolean
 }
 
-const loginManager = new NhsLogin();
-
 export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeScreenState> {
     constructor(props: WelcomeScreenProps) {
         super(props);
@@ -67,9 +65,10 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                 ])
                 return;
         }
+        const _this = this;
         // this.setState({ loading: true });
-        NhsLoginInstance.NhsLoginAuthorise(() => {
-            this.props.navigation.navigate('Dashboard');
+        NhsLogin.instance.NhsLoginAuthorise(() => {
+            _this.props.navigation.navigate('Dashboard');
         });
         // this.setState({ loading: false });
         

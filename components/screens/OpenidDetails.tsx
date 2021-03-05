@@ -33,8 +33,8 @@ export class OpenIDDetailsScreen extends React.Component<OpenIDDetailsScreenProp
     render() {
         return (
             <View style={styles.mainView}>
-                <Text style={styles.titleText}>Userinfo response</Text>
-                <ObjectTable obj={NhsLoginInstance.nhsUserInfo}></ObjectTable>
+                <Text style={styles.titleText}>ID Token Payload</Text>
+                <ObjectTable obj={NhsLoginInstance.nhsIdTokenPayload}></ObjectTable>
             </View>
         )
     }
