@@ -67,10 +67,12 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                 ])
                 return;
         }
-        this.setState({ loading: true });
-        await NhsLoginInstance.NhsLoginAuthorise();
-        this.setState({ loading: false });
-        this.props.navigation.navigate('Dashboard');
+        // this.setState({ loading: true });
+        NhsLoginInstance.NhsLoginAuthorise(() => {
+            this.props.navigation.navigate('Dashboard');
+        });
+        // this.setState({ loading: false });
+        
     }
 
     render() {
