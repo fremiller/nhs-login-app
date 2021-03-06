@@ -11,10 +11,14 @@ import * as RootNavigation from '../RootNavigation';
 import { NhsLogin } from '../NhsLogin';
 import { NhsLoginButton } from '../NhsLoginButton';
 import { NhsButton } from '../NhsButton';
+import {NhsDropdown} from '../NhsDropdown';
 import { TextInput } from 'react-native-gesture-handler';
 
 import { RootStackParamList, NhsLoginInstance } from '../../services';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
+
+import {Picker} from '@react-native-picker/picker';
+import { components } from '../../styles/components';
 
 
 type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome'>;
@@ -22,14 +26,16 @@ type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome
 export type WelcomeScreenProps = WelcomeScreenNavigationProp & {};
 
 export interface WelcomeScreenState {
-    loading: boolean
+    loading: boolean,
+    selectedWebview: string
 }
 
 export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeScreenState> {
     constructor(props: WelcomeScreenProps) {
         super(props);
         this.state = {
-            loading: false
+            loading: false,
+            selectedWebview: "browser"
         }
     }
     static header(props: StackHeaderProps) {
@@ -67,7 +73,12 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
         }
         const _this = this;
         // this.setState({ loading: true });
-        NhsLogin.instance.NhsLoginAuthorise(() => {
+        //@ts-ignore
+        NhsLogin.instance.NhsLoginAuthorise(this.state.selectedWebview,  (url: string) => {
+            this.props.navigation.navigate("LoginWebview", {
+                url
+            })
+        }, () => {
             _this.props.navigation.navigate('Dashboard');
         });
         // this.setState({ loading: false });
@@ -90,6 +101,21 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                         <NhsButton onPress={() => {
                             this.props.navigation.navigate('Environment');
                         }} text="Change Environment" style="secondary"></NhsButton>
+                        <NhsDropdown currentValue={this.state.selectedWebview} onValueChanged={(v) => this.setState({selectedWebview: v})} items={[
+                            {
+                                label: "Web Browser",
+                                value: "browser"
+                            },
+                            {
+                                label: "System Webview",
+                                value: "webview"
+                            },
+                            {
+                                label: "Custom Tab",
+                                value: "tab"
+                            }
+                        ]}></NhsDropdown>
+                        <Text style={components.label}>Webview</Text>
                     </View> : <View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
             </View>
         )

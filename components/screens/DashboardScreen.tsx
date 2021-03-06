@@ -3,7 +3,7 @@ import { ActivityIndicator, Animated, StatusBar, StyleSheet, Text, View } from '
 import * as Colors from '../../styles/colors';
 
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
-import {RootStackParamList} from '../../App';
+import {RootStackParamList} from '../../services';
 import { NavBar } from '../navbar/NavBar';
 import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';
@@ -33,6 +33,9 @@ export class DashboardScreen extends React.Component<DashboardScreenProps, {}> {
                 <NhsCard title="Chat Disabled" body="Chat functionality has been disabled on the app server."></NhsCard>
                 <NhsButton text="OpenID Details" style="primary" onPress={() => {
                     this.props.navigation.navigate("OpenidDetails");
+                }}></NhsButton>
+                <NhsButton text="Set up fingerprint" style="primary" onPress={() => {
+
                 }}></NhsButton>
             </View>
         )
