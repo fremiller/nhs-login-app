@@ -4,6 +4,9 @@ import jwt_decode from "jwt-decode";
 // import { MessagingInstance, setMessagingInstance } from '../services';
 import { Messaging } from './Messaging';
 
+import ReactNativeBiometrics from 'react-native-biometrics';
+import { CustomTabs } from 'react-native-custom-tabs';
+
 const possibleScopes = [
     'openid',
     'profile',
@@ -54,6 +57,8 @@ export class NhsLogin {
     mmkv = new MMKVStorage.Loader().initialize();
     lastAuthorizationCode = ""
 
+    fingerprintEnabled: boolean = false;
+
     constructor() {
         if (NhsLogin.instance){
             console.warn("NhsLogin instance already exists!");
@@ -85,6 +90,9 @@ export class NhsLogin {
         }
         console.log(this.env);
         this.updateConfigFromEnv();
+
+        const { biometryType } = await ReactNativeBiometrics.isSensorAvailable();
+        this.fingerprintEnabled = (biometryType !== ReactNativeBiometrics.Biometrics);
     }
 
     readyToAuthorise() {
@@ -138,9 +146,19 @@ export class NhsLogin {
         console.log(NhsLogin.instance.nhsIdTokenPayload);
     }
 
-    NhsLoginAuthorise(onComplete: () => void) {
+    NhsLoginAuthorise(webviewType: "browser" | "webview" | "tab", openWebview: (url: string) => void, onComplete: () => void) {
+        // ReactNativeBiometrics.simplePrompt({promptMessage: "Sign in to NHS Login"});
+        // return;
         console.log(`Logging in with scopes: ${this.config.scopes}`);
-        Linking.openURL(NhsLogin.instance.buildAuthoriseUrl());
+        if (webviewType == "browser"){
+            Linking.openURL(NhsLogin.instance.buildAuthoriseUrl());
+        }
+        if (webviewType == "webview"){
+            openWebview(NhsLogin.instance.buildAuthoriseUrl());
+        }
+        if (webviewType == "tab"){
+            CustomTabs.openURL(NhsLogin.instance.buildAuthoriseUrl());
+        }
         NhsLogin.instance.onIdTokenReceived = onComplete;
         // let result = await authorize(this.config).catch((e) => {
         //     console.log(e);

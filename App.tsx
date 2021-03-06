@@ -19,6 +19,7 @@ import { DashboardScreen } from './components/screens/DashboardScreen';
 
 import { navigationRef } from "./components/RootNavigation";
 import { OpenidSettingsScreen } from './components/screens/OpenidSettingsScreen';
+import { LoginWebviewScreen } from './components/screens/LoginWebviewScreen';
 import { NhsLogin } from './components/NhsLogin';
 
 import * as Colors from './styles/colors';
@@ -55,6 +56,9 @@ export default class App extends React.Component {
         }}></Stack.Screen>
         <Stack.Screen name="Environment" component={EnvironmentScreen} options={{
           header: EnvironmentScreen.header,
+        }}></Stack.Screen>
+        <Stack.Screen name="LoginWebview" component={LoginWebviewScreen} options={{
+          header: LoginWebviewScreen.header,
         }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

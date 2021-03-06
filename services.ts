@@ -13,5 +13,6 @@ export type RootStackParamList = {
     Welcome: undefined,
     Dashboard: undefined,
     OpenidDetails: undefined,
-    Environment: undefined
+    Environment: undefined,
+    LoginWebview: {url: string}
   }
