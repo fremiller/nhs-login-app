@@ -7,6 +7,8 @@ import {RootStackParamList} from '../../services';
 import { NavBar } from '../navbar/NavBar';
 import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';
+import { Fido } from '../Fido';
+import { NhsLogin } from '../NhsLogin';
 
 type DashboardScreenNavigationProps = StackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -35,7 +37,7 @@ export class DashboardScreen extends React.Component<DashboardScreenProps, {}> {
                     this.props.navigation.navigate("OpenidDetails");
                 }}></NhsButton>
                 <NhsButton text="Set up fingerprint" style="primary" onPress={() => {
-
+                    new Fido().register(NhsLogin.instance.nhsAccessToken);
                 }}></NhsButton>
             </View>
         )

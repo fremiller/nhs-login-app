@@ -303,6 +303,87 @@ exports[`renders correctly 1`] = `
                             </View>
                           </View>
                           <View
+                            accessibilityLabel="Log in with fingerprint"
+                            accessibilityRole="button"
+                            accessible={true}
+                            focusable={true}
+                            onClick={[Function]}
+                            onResponderGrant={[Function]}
+                            onResponderMove={[Function]}
+                            onResponderRelease={[Function]}
+                            onResponderTerminate={[Function]}
+                            onResponderTerminationRequest={[Function]}
+                            onStartShouldSetResponder={[Function]}
+                            style={
+                              Object {
+                                "alignItems": "center",
+                                "height": 57,
+                                "marginTop": 5,
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                Array [
+                                  Object {
+                                    "alignItems": "center",
+                                    "height": 53,
+                                    "justifyContent": "center",
+                                    "left": 0,
+                                    "position": "absolute",
+                                    "top": 0,
+                                    "width": "100%",
+                                    "zIndex": -1,
+                                  },
+                                ]
+                              }
+                            >
+                              <View
+                                style={
+                                  Object {
+                                    "alignItems": "center",
+                                    "backgroundColor": "#414141",
+                                    "borderRadius": 4,
+                                    "height": 53,
+                                    "justifyContent": "center",
+                                    "left": 0,
+                                    "marginTop": 4,
+                                    "position": "absolute",
+                                    "top": 0,
+                                    "width": "100%",
+                                    "zIndex": 3,
+                                  }
+                                }
+                              />
+                            </View>
+                            <View
+                              style={
+                                Object {
+                                  "backgroundColor": "#007f3b",
+                                  "borderRadius": 4,
+                                  "height": 53,
+                                  "marginTop": 0,
+                                  "padding": 14,
+                                  "textTransform": "none",
+                                  "width": "100%",
+                                }
+                              }
+                            >
+                              <Text
+                                style={
+                                  Object {
+                                    "color": "#ffffff",
+                                    "fontSize": 19,
+                                    "fontWeight": "bold",
+                                    "textAlign": "center",
+                                  }
+                                }
+                              >
+                                Log in with fingerprint
+                              </Text>
+                            </View>
+                          </View>
+                          <View
                             accessibilityLabel="Modify Scopes"
                             accessibilityRole="button"
                             accessible={true}
@@ -545,6 +626,183 @@ exports[`renders correctly 1`] = `
                               </Text>
                             </View>
                           </View>
+                          <View
+                            accessible={true}
+                            focusable={true}
+                            onClick={[Function]}
+                            onResponderGrant={[Function]}
+                            onResponderMove={[Function]}
+                            onResponderRelease={[Function]}
+                            onResponderTerminate={[Function]}
+                            onResponderTerminationRequest={[Function]}
+                            onStartShouldSetResponder={[Function]}
+                            style={
+                              Object {
+                                "alignItems": "center",
+                                "backgroundColor": "#ffffff",
+                                "borderColor": "#4c6272",
+                                "borderStyle": "solid",
+                                "borderWidth": 3,
+                                "flexDirection": "row",
+                                "fontSize": 21,
+                                "marginBottom": 3,
+                                "paddingHorizontal": 5,
+                                "paddingVertical": 5,
+                              }
+                            }
+                          >
+                            <Text
+                              style={
+                                Object {
+                                  "flexShrink": 1,
+                                  "fontSize": 21,
+                                  "width": "100%",
+                                }
+                              }
+                            >
+                              Web Browser
+                            </Text>
+                            <SvgMock
+                              height="40%"
+                              width="10%"
+                            />
+                          </View>
+                          <Modal
+                            animationType="fade"
+                            hardwareAccelerated={false}
+                            onRequestClose={[Function]}
+                            transparent={true}
+                            visible={false}
+                          >
+                            <View
+                              accessible={true}
+                              focusable={true}
+                              onClick={[Function]}
+                              onResponderGrant={[Function]}
+                              onResponderMove={[Function]}
+                              onResponderRelease={[Function]}
+                              onResponderTerminate={[Function]}
+                              onResponderTerminationRequest={[Function]}
+                              onStartShouldSetResponder={[Function]}
+                              style={
+                                Object {
+                                  "alignItems": "stretch",
+                                  "bottom": 0,
+                                  "flex": 1,
+                                  "height": "100%",
+                                  "justifyContent": "center",
+                                  "left": 0,
+                                  "position": "absolute",
+                                  "right": 0,
+                                  "top": 0,
+                                  "width": "100%",
+                                  "zIndex": -1,
+                                }
+                              }
+                            >
+                              <View
+                                style={
+                                  Object {
+                                    "backgroundColor": "#ffffff",
+                                    "borderRadius": 3,
+                                    "margin": 30,
+                                    "padding": 30,
+                                  }
+                                }
+                              >
+                                <View
+                                  accessible={true}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    Object {
+                                      "opacity": 1,
+                                      "padding": 8,
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      Object {
+                                        "fontSize": 21,
+                                      }
+                                    }
+                                  >
+                                    Web Browser
+                                  </Text>
+                                </View>
+                                <View
+                                  accessible={true}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    Object {
+                                      "opacity": 1,
+                                      "padding": 8,
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      Object {
+                                        "fontSize": 21,
+                                      }
+                                    }
+                                  >
+                                    System Webview
+                                  </Text>
+                                </View>
+                                <View
+                                  accessible={true}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    Object {
+                                      "opacity": 1,
+                                      "padding": 8,
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      Object {
+                                        "fontSize": 21,
+                                      }
+                                    }
+                                  >
+                                    Custom Tab
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                          </Modal>
+                          <Text
+                            style={
+                              Object {
+                                "fontSize": 20,
+                              }
+                            }
+                          >
+                            Webview
+                          </Text>
                         </View>
                       </View>
                     </View>

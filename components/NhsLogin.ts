@@ -6,6 +6,9 @@ import { Messaging } from './Messaging';
 
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { CustomTabs } from 'react-native-custom-tabs';
+import { Fido } from './Fido';
+
+import base64url from 'base64url';
 
 const possibleScopes = [
     'openid',
@@ -32,6 +35,8 @@ export interface AuthConfiguration {
     vtr: string
 }
 
+type WebViewType = "browser" | "webview" | "tab";
+
 export class NhsLogin {
     static instance: NhsLogin;
     config: AuthConfiguration = {
@@ -45,6 +50,9 @@ export class NhsLogin {
     nhsIdTokenPayload: any;
 
     idToken?: string;
+    nhsAccessToken: string = "";
+
+    appAccessToken: string = "";
 
     appServerUrl: string = "";
 
@@ -122,19 +130,6 @@ export class NhsLogin {
         _this.lastAuthorizationCode = code;
         console.log("Authorization code: " + code);
         await _this.AuthorizationCodeExchange(code);
-        // console.log(token);
-        // if (!token || token == "undefined") {
-        //     token = undefined;
-        //     return;
-        // }
-        // _this.idToken = token;
-        // if (!_this.idToken){
-        //     return;
-        // }
-        // _this.idTokenDecode(_this.idToken);
-        // if (NhsLogin.instance.onIdTokenReceived) {
-        //     NhsLogin.instance.onIdTokenReceived();
-        // }
     }
 
     idTokenDecode(idToken: string) {
@@ -146,19 +141,33 @@ export class NhsLogin {
         console.log(NhsLogin.instance.nhsIdTokenPayload);
     }
 
-    NhsLoginAuthorise(webviewType: "browser" | "webview" | "tab", openWebview: (url: string) => void, onComplete: () => void) {
+    async fingerprintLogin(webviewType: WebViewType, openWebview: (url: string) => void, onComplete: () => void){
+        const authResponse = await new Fido().auth();
+        const authResponseJson = JSON.parse(authResponse);
+        const message = authResponseJson.uafProtocolMessage.replace("\\\"", "\"");
+        console.log(message);
+        this.openInWebview(this.buildAuthoriseUrl() + "&fido_auth_response=" + new Fido().ToBase64Url(message), webviewType, openWebview);
+        
+        NhsLogin.instance.onIdTokenReceived = onComplete;
+    }
+
+    openInWebview(url: string, webviewType: WebViewType, openWebview: (url: string) => void){
+        if (webviewType == "browser"){
+            Linking.openURL(url);
+        }
+        if (webviewType == "webview"){
+            openWebview(url);
+        }
+        if (webviewType == "tab"){
+            CustomTabs.openURL(url);
+        }
+    }
+
+    NhsLoginAuthorise(webviewType: WebViewType, openWebview: (url: string) => void, onComplete: () => void) {
         // ReactNativeBiometrics.simplePrompt({promptMessage: "Sign in to NHS Login"});
         // return;
         console.log(`Logging in with scopes: ${this.config.scopes}`);
-        if (webviewType == "browser"){
-            Linking.openURL(NhsLogin.instance.buildAuthoriseUrl());
-        }
-        if (webviewType == "webview"){
-            openWebview(NhsLogin.instance.buildAuthoriseUrl());
-        }
-        if (webviewType == "tab"){
-            CustomTabs.openURL(NhsLogin.instance.buildAuthoriseUrl());
-        }
+        this.openInWebview(NhsLogin.instance.buildAuthoriseUrl(), webviewType, openWebview)
         NhsLogin.instance.onIdTokenReceived = onComplete;
         // let result = await authorize(this.config).catch((e) => {
         //     console.log(e);
@@ -184,13 +193,15 @@ export class NhsLogin {
             return;
         }
         this.idTokenDecode(nhsAuthResponse.id_token);
+        this.appAccessToken = nhsAuthResponse.access_token;
         // this.idToken = nhsAuthResponse.nhsUserInfo;
         if (this.onIdTokenReceived) {
             this.onIdTokenReceived();
         }
         if (nhsAuthResponse.chat) {
-            // setMessagingInstance(new Messaging(this.appServerUrl, nhsAuthResponse.appToken));
+            new Messaging(this.appServerUrl, this.appAccessToken);
         }
+        this.nhsAccessToken = nhsAuthResponse.nhs_access_token;
     }
 
     GetScopes(): {
