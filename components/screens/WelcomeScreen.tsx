@@ -19,6 +19,7 @@ import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 
 import {Picker} from '@react-native-picker/picker';
 import { components } from '../../styles/components';
+import { Fido } from '../Fido';
 
 
 type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome'>;
@@ -94,6 +95,17 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                         <NhsLoginButton onPress={async () => {
                             await this.onLoginButtonPressed()
                         }}></NhsLoginButton>
+                        <NhsButton onPress={() => {
+                            const _this = this;
+                            //@ts-ignore
+                            NhsLogin.instance.fingerprintLogin(this.state.selectedWebview,  (url: string) => {
+                                this.props.navigation.navigate("LoginWebview", {
+                                    url
+                                })
+                            }, () => {
+                                _this.props.navigation.navigate('Dashboard');
+                            });
+                        }} text="Log in with fingerprint" style="primary"></NhsButton>
                         <NhsButton onPress={() => {
                             this.props.navigation.navigate('OpenidSettings');
                         }} text="Modify Scopes" style="secondary"></NhsButton>
