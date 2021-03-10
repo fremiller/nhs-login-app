@@ -3,7 +3,7 @@ import { ActivityIndicator, Animated, StatusBar, StyleSheet, Text, View } from '
 import * as Colors from '../../styles/colors';
 
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
-import {RootStackParamList, NhsLoginInstance} from '../../services';
+import {RootStackParamList} from '../../services';
 import { NavBar } from '../navbar/NavBar';
 import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';

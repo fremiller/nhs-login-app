@@ -9,14 +9,17 @@ import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';
 import { ObjectTable } from '../ObjectTable';
 import { NhsLogin } from '../NhsLogin';
+import { TextInput } from 'react-native-gesture-handler';
+import { components } from '../../styles/components';
+import { ChatInfo } from '../Messaging';
 
-type OpenIDDetailsScreenNavigationProps = StackScreenProps<RootStackParamList, 'OpenidDetails'>;
+type ChatScreenNavigationProps = StackScreenProps<RootStackParamList, 'Chat'>;
 
-export type OpenIDDetailsScreenProps = {
-    navigation: OpenIDDetailsScreenNavigationProps
+export type ChatScreenProps = ChatScreenNavigationProps & {
+    chat: ChatInfo
 }
 
-export class OpenIDDetailsScreen extends React.Component<OpenIDDetailsScreenProps, {}> {
+export class ChatScreen extends React.Component<ChatScreenProps, {}> {
     static header(props: StackHeaderProps) {
         const progress = Animated.add(props.scene.progress.current, props.scene.progress.next || 0);
 
@@ -24,18 +27,20 @@ export class OpenIDDetailsScreen extends React.Component<OpenIDDetailsScreenProp
         inputRange: [0, 1, 2],
         outputRange: [0, 1, 0],
         });
-
+        console.log(props.scene.route.params);
         return (
             <Animated.View style={{opacity}}><StatusBar backgroundColor={Colors.Blue}></StatusBar>
-            <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>OpenID Details</Text>)} /></Animated.View>
+            <NavBar backButtonEnabled={true} left={() => (<Text style={styles.title}>Chat</Text>)} /></Animated.View>
         )
     }
 
     render() {
         return (
             <View style={styles.mainView}>
-                <Text style={styles.titleText}>ID Token Payload</Text>
-                <ObjectTable obj={NhsLogin.instance.nhsIdTokenPayload}></ObjectTable>
+                <View style={styles.submitRow}>
+                    <TextInput style={components.textField}></TextInput>
+                    <NhsButton style='primary' text="Send" onPress={() => {}}></NhsButton>
+                </View>
             </View>
         )
     }
@@ -45,6 +50,9 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: Colors.BackgroundColor
+    },
+    submitRow: {
+        flexDirection: 'row'
     },
     title: {
         fontSize: 21,
@@ -60,7 +68,7 @@ const styles = StyleSheet.create({
     mainView: {
         display: 'flex',
         flex: 1,
-        flexDirection: 'column',
+        flexDirection: 'column-reverse',
         marginBottom: 40,
         marginHorizontal: 20,
     }

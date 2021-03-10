@@ -7,19 +7,15 @@ import { NavBar } from "../navbar/NavBar";
 //@ts-ignore
 import NhsLogo from "../../assets/icons/logo-nhs.svg";
 
-import * as RootNavigation from '../RootNavigation';
 import { NhsLogin } from '../NhsLogin';
 import { NhsLoginButton } from '../NhsLoginButton';
 import { NhsButton } from '../NhsButton';
 import {NhsDropdown} from '../NhsDropdown';
-import { TextInput } from 'react-native-gesture-handler';
 
-import { RootStackParamList, NhsLoginInstance } from '../../services';
+import { RootStackParamList } from '../../services';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 
-import {Picker} from '@react-native-picker/picker';
 import { components } from '../../styles/components';
-import { Fido } from '../Fido';
 
 
 type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome'>;
@@ -36,7 +32,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
         super(props);
         this.state = {
             loading: false,
-            selectedWebview: "browser"
+            selectedWebview: "tab"
         }
     }
     static header(props: StackHeaderProps) {
@@ -56,7 +52,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
     }
 
     async onLoginButtonPressed() {
-        if (!NhsLoginInstance.readyToAuthorise()) {
+        if (!NhsLogin.instance.readyToAuthorise()) {
             this.setState({ loading: false });
             Alert.alert("Cannot sign in", "You must select an environment before continuing",
                 [
@@ -75,11 +71,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
         const _this = this;
         // this.setState({ loading: true });
         //@ts-ignore
-        NhsLogin.instance.NhsLoginAuthorise(this.state.selectedWebview,  (url: string) => {
-            this.props.navigation.navigate("LoginWebview", {
-                url
-            })
-        }, () => {
+        NhsLogin.instance.NhsLoginAuthorise(this.state.selectedWebview,  this.props.navigation, () => {
             _this.props.navigation.navigate('Dashboard');
         });
         // this.setState({ loading: false });
@@ -98,11 +90,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                         <NhsButton onPress={() => {
                             const _this = this;
                             //@ts-ignore
-                            NhsLogin.instance.fingerprintLogin(this.state.selectedWebview,  (url: string) => {
-                                this.props.navigation.navigate("LoginWebview", {
-                                    url
-                                })
-                            }, () => {
+                            NhsLogin.instance.fingerprintLogin(this.state.selectedWebview, this.props.navigation, () => {
                                 _this.props.navigation.navigate('Dashboard');
                             });
                         }} text="Log in with fingerprint" style="primary"></NhsButton>
@@ -128,6 +116,7 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                             }
                         ]}></NhsDropdown>
                         <Text style={components.label}>Webview</Text>
+                        {/* <ChatButton></ChatButton> */}
                     </View> : <View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
             </View>
         )
