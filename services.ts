@@ -1,12 +1,4 @@
-import { Messaging } from "./components/Messaging";
-import { NhsLogin } from "./components/NhsLogin";
-
-export const NhsLoginInstance: NhsLogin = new NhsLogin();
-export var MessagingInstance: Messaging | undefined;
-
-export function setMessagingInstance(msg: Messaging){
-    MessagingInstance = msg;
-}
+import { ChatInfo } from "./components/Messaging";
 
 export type RootStackParamList = {
     OpenidSettings: undefined,
@@ -14,5 +6,8 @@ export type RootStackParamList = {
     Dashboard: undefined,
     OpenidDetails: undefined,
     Environment: undefined,
-    LoginWebview: {url: string}
+    LoginWebview: {url: string},
+    Chat: {
+      chat: ChatInfo
+    }
   }

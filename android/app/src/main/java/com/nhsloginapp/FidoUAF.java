@@ -40,6 +40,7 @@ import com.nhs.online.fidoclient.uaf.operationcall.AuthenticationCall;
 import com.nhs.online.fidoclient.uaf.operationcall.RegistrationCall;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
@@ -81,7 +82,7 @@ public class FidoUAF extends ReactContextBaseJavaModule {
     private RegistrationRequest req;
 
     @ReactMethod
-    public String FidoUafRegister(final ReadableMap params, final Promise promise) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, KeyStoreException, CertificateException, IOException {
+    public void FidoUafRegister(final ReadableMap params, final Promise promise) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, KeyStoreException, CertificateException, IOException {
         String accessToken = params.getString("accessToken");
         String facetId = params.getString("facetId");
         String url = params.getString("url");
@@ -92,8 +93,6 @@ public class FidoUAF extends ReactContextBaseJavaModule {
         KeyPair keyPair = fidoKeystore.generateKeyPair("test");
         authOnly = true;
         DoFingerprintReq(promise);
-
-        return "done";
     }
 
     private AuthenticationRequest authReq;
@@ -101,19 +100,20 @@ public class FidoUAF extends ReactContextBaseJavaModule {
     private Authentication auth;
 
     @ReactMethod
-    public String FidoUafAuthenticate(final ReadableMap params, final Promise promise){
+    public void FidoUafAuthenticate(final ReadableMap params, final Promise promise){
         String facetId = params.getString("facetId");
         String url =params.getString("url");
         auth = new Authentication();
         authRequestResponse = auth.requestUafAuthenticationMessage(facetId, url);
         authOnly = false;
         DoFingerprintReq(promise);
-        return "done";
     }
 
     @ReactMethod
-    public String ToBase64Url(String input){
-        return Base64url.INSTANCE.encodeToString(input.getBytes());
+    public void ToBase64Url(final ReadableMap params, Promise promise) throws UnsupportedEncodingException {
+        String input = params.getString("input");
+        input = input.replaceAll("\\\\\"", "\"");
+        promise.resolve(Base64url.INSTANCE.encodeToString(input.getBytes()));
     }
 
 //    private String getUsername(){
@@ -124,7 +124,8 @@ public class FidoUAF extends ReactContextBaseJavaModule {
         if (authOnly){
             Signature signature = crypto.getSignature();
             RegistrationResponse res = reg.processRequest(req, new RegAssertionBuilder(fidoKeystore.getPublicKey("test"), signature, "foo"));
-            promise.resolve(res.toString());
+            Gson g = new Gson();
+            promise.resolve(g.toJson(res));
         }
         else {
             FidoSigner signer = new FidoSignerAndroidM(crypto.getSignature());
@@ -177,10 +178,4 @@ public class FidoUAF extends ReactContextBaseJavaModule {
     private PublicKey publicKeyFromString(String key) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchProviderException {
         return KeyCodec.INSTANCE.getPubKey(Base64url.INSTANCE.decode(key));
     }
-
-
-    public void FidoUafRegistrationResponse(String message, String publicKey, String signature){
-
-    }
-
 }

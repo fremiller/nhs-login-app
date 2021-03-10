@@ -5,21 +5,33 @@ import ReactNativeBiometrics from "react-native-biometrics";
 import ReactNative from 'react-native';
 
 const { FidoUAF } = ReactNative.NativeModules;
+const FacetID = "android:apk-key-hash-sha256:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU";
 
 export class Fido {
     async register(accessToken: string){
-        const result: string = await FidoUAF.FidoUafRegister({accessToken: accessToken, facetId: "https://du-nhs-login.herokuapp.com", url: "https://uaf.sandpit.signin.nhs.uk/regRequest"});
+        const result: string = await FidoUAF.FidoUafRegister({accessToken: accessToken, facetId: FacetID, url: "https://uaf.sandpit.signin.nhs.uk/regRequest"});
+        const resultJson = JSON.parse(result);
+        console.log(resultJson);
+        const res = await fetch("https://uaf.sandpit.signin.nhs.uk/regResponse", {
+            method: "POST",
+            body: resultJson
+        }).then((res) => res.json()).catch((err)=>{
+            console.log(err);
+        });
+        console.log(res);
     }
 
     async auth(): Promise<string> {
         const result: string = await FidoUAF.FidoUafAuthenticate({
-            facetId: "https://du-nhs-login.herokuapp.com",
+            facetId: FacetID,
             url: "https://uaf.sandpit.signin.nhs.uk/authRequest"
         });
         return result;
     }
 
-    ToBase64Url(s: string){
-        return FidoUAF.ToBase64Url(s);
+    async ToBase64Url(s: string): Promise<string>{
+        return await FidoUAF.ToBase64Url({
+            input: s
+        });
     }
 }

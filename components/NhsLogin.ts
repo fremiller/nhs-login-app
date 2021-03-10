@@ -9,6 +9,8 @@ import { CustomTabs } from 'react-native-custom-tabs';
 import { Fido } from './Fido';
 
 import base64url from 'base64url';
+import * as Colors from '../styles/colors';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const possibleScopes = [
     'openid',
@@ -43,7 +45,7 @@ export class NhsLogin {
         issuer: 'https://auth.sandpit.signin.nhs.uk',
         clientId: 'du-nhs-login',
         redirectUrl: 'https://du-nhs-login.herokuapp.com/code',
-        scopes: ['openid'],
+        scopes: ['openid', 'profile'],
         vtr: "[\"P0.Cp\"]"
     }
 
@@ -55,6 +57,9 @@ export class NhsLogin {
     appAccessToken: string = "";
 
     appServerUrl: string = "";
+
+    chatEnabled: boolean = false;
+    chatDisabledMessage: string = "";
 
     env: Environment = {
         client_id: "",
@@ -135,53 +140,52 @@ export class NhsLogin {
     idTokenDecode(idToken: string) {
         const payload = jwt_decode(idToken);
         if (!payload){
+            console.warn("No ID Token payload.");
             return;
         }
         NhsLogin.instance.nhsIdTokenPayload = payload;
         console.log(NhsLogin.instance.nhsIdTokenPayload);
     }
 
-    async fingerprintLogin(webviewType: WebViewType, openWebview: (url: string) => void, onComplete: () => void){
+    async fingerprintLogin(webviewType: WebViewType, navigationContext: any, onComplete: () => void){
         const authResponse = await new Fido().auth();
         const authResponseJson = JSON.parse(authResponse);
-        const message = authResponseJson.uafProtocolMessage.replace("\\\"", "\"");
-        console.log(message);
-        this.openInWebview(this.buildAuthoriseUrl() + "&fido_auth_response=" + new Fido().ToBase64Url(message), webviewType, openWebview);
+        const message = authResponseJson.uafProtocolMessage;
+        const url = this.buildAuthoriseUrl() + "&fido_auth_response=" + await new Fido().ToBase64Url(JSON.stringify(message));
+        console.log(url);
+        this.openInWebview(url, webviewType, navigationContext);
         
         NhsLogin.instance.onIdTokenReceived = onComplete;
     }
 
-    openInWebview(url: string, webviewType: WebViewType, openWebview: (url: string) => void){
+    openInWebview(url: string, webviewType: WebViewType, navigationContext: any){
         if (webviewType == "browser"){
             Linking.openURL(url);
         }
         if (webviewType == "webview"){
-            openWebview(url);
+            navigationContext.navigate("LoginWebview", {
+                url
+            })
         }
         if (webviewType == "tab"){
-            CustomTabs.openURL(url);
+            CustomTabs.openURL(url, {
+                toolbarColor: Colors.Blue,
+                enableDefaultShare: false,
+                showPageTitle: false,
+                enableUrlBarHiding: false,
+            });
         }
     }
 
-    NhsLoginAuthorise(webviewType: WebViewType, openWebview: (url: string) => void, onComplete: () => void) {
-        // ReactNativeBiometrics.simplePrompt({promptMessage: "Sign in to NHS Login"});
-        // return;
+    NhsLoginAuthorise(webviewType: WebViewType, navigationContext: any, onComplete: () => void) {
         console.log(`Logging in with scopes: ${this.config.scopes}`);
-        this.openInWebview(NhsLogin.instance.buildAuthoriseUrl(), webviewType, openWebview)
+        this.openInWebview(NhsLogin.instance.buildAuthoriseUrl(), webviewType, navigationContext)
         NhsLogin.instance.onIdTokenReceived = onComplete;
-        // let result = await authorize(this.config).catch((e) => {
-        //     console.log(e);
-        // });
-        // if (!result){
-        //     return;
-        // }
-        // console.log(`Authorization code: ${result.authorizationCode}`);
-        // 
     }
 
     async AuthorizationCodeExchange(authCode: string) {
         console.log("Auth code exchange");
-        const nhsAuthResponse = await fetch(this.appServerUrl + "/token?code=" + authCode, {
+        const nhsAuthResponse = await fetch(this.appServerUrl + "/token?code=" + authCode + "&env=" + this.env.name, {
             method: "POST",
         }).then(async (res) => {
             return await res.json();
@@ -194,14 +198,18 @@ export class NhsLogin {
         }
         this.idTokenDecode(nhsAuthResponse.id_token);
         this.appAccessToken = nhsAuthResponse.access_token;
-        // this.idToken = nhsAuthResponse.nhsUserInfo;
+        this.chatEnabled = nhsAuthResponse.messaging_enabled;
+        if (nhsAuthResponse.messaging_enabled){
+            new Messaging(this.appServerUrl, this.appAccessToken);
+        }
+        else {
+            this.chatDisabledMessage = nhsAuthResponse.messaging_disabled_reason;
+        }
+        this.nhsAccessToken = nhsAuthResponse.nhs_access_token;
+
         if (this.onIdTokenReceived) {
             this.onIdTokenReceived();
         }
-        if (nhsAuthResponse.chat) {
-            new Messaging(this.appServerUrl, this.appAccessToken);
-        }
-        this.nhsAccessToken = nhsAuthResponse.nhs_access_token;
     }
 
     GetScopes(): {
@@ -219,3 +227,5 @@ export class NhsLogin {
         this.config.scopes = scopes;
     }
 }
+
+new NhsLogin();

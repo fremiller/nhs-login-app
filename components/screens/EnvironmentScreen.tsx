@@ -12,7 +12,7 @@ import { Environment, NhsLogin } from '../NhsLogin';
 import { NhsLoginButton } from '../NhsLoginButton';
 import { NhsButton } from '../NhsButton';
 
-import { RootStackParamList, NhsLoginInstance } from '../../services';
+import { RootStackParamList } from '../../services';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 import { components } from '../../styles/components';
 import { NhsCard } from '../NhsCard';
@@ -37,7 +37,7 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
         this.state = {
             loading: false,
             url: undefined,
-            urlInput: NhsLoginInstance.appServerUrl,
+            urlInput: NhsLogin.instance.appServerUrl,
             errorText: undefined,
             environments: []
         }
@@ -91,7 +91,7 @@ export class EnvironmentScreen extends React.Component<EnvironmentScreenProps, E
             loading: true
         });
         console.log(this.state.urlInput, this.state.environments[index])
-        await NhsLoginInstance.updateEnvironment(this.state.urlInput, this.state.environments[index]);
+        await NhsLogin.instance.updateEnvironment(this.state.urlInput, this.state.environments[index]);
         this.props.navigation.navigate("Welcome");
     }
 
