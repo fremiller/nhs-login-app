@@ -1,6 +1,7 @@
 private_key.pem
 public_key.pem
 keystore.properties
+env.bat
 
 # OSX
 #
