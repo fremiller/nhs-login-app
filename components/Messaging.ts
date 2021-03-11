@@ -43,11 +43,15 @@ export class Messaging {
             }
         });
         this.sio.on("connected", () => {
-            this.sio.emit("message:text", {
-                chatid: 0,
-                text: "Hello!"
-            })
+            
         });
+    }
+
+    sendTextMessage(chatid: string, text: string){
+        this.sio.emit("message:text", {
+            chatid,
+            text
+        })
     }
 
     async getChats(): Promise<{chats: ChatInfo[]}|{error:string}>{

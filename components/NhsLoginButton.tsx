@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ActivityIndicator, GestureResponderEvent, Pressable, StyleSheet, View } from 'react-native';
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
 //@ts-ignore
 import NhsLoginButtonSvg from '../assets/img/nhs-login-button.svg'
 
@@ -12,11 +12,11 @@ interface NhsLoginButtonProps {
 
 export class NhsLoginButton extends React.Component<NhsLoginButtonProps> {
     render() {
-        return (<Pressable onPress={this.props.onPress} accessibilityLabel="Continue with NHS Login" accessibilityRole="button">
+        return (<TouchableOpacity style={{...styles.nhsButton, marginTop: 10}} onPress={this.props.onPress} accessibilityLabel="Continue with NHS Login" accessibilityRole="button">
             <View style={styles.nhsButton}>
             <NhsLoginButtonSvg style={styles.nhsButton}></NhsLoginButtonSvg>
             </View>
-        </Pressable>)
+        </TouchableOpacity>)
     }
 }
 
@@ -26,6 +26,5 @@ const styles = StyleSheet.create({
         height: 60,
         width: '100%',
         alignSelf: 'flex-end',
-        marginTop: 10
     }
 })

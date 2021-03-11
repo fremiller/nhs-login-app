@@ -27,6 +27,7 @@ import { OpenIDDetailsScreen } from './components/screens/OpenidDetails';
 import { EnvironmentScreen } from './components/screens/EnvironmentScreen';
 
 import {RootStackParamList} from './services';
+import { ChatScreen } from './components/screens/ChatScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -59,6 +60,9 @@ export default class App extends React.Component {
         }}></Stack.Screen>
         <Stack.Screen name="LoginWebview" component={LoginWebviewScreen} options={{
           header: LoginWebviewScreen.header,
+        }}></Stack.Screen>
+        <Stack.Screen name="Chat" component={ChatScreen} options={{
+          header: ChatScreen.header
         }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
