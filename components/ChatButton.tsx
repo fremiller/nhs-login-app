@@ -2,11 +2,14 @@ import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { ChatInfo } from "./Messaging";
 
+import * as Colors from "../styles/colors";
+
 export interface ChatButtonProps {
     name: string,
     location: string,
     imageSrc: string,
     id: string,
+    light?: boolean
     onPress: (chat: ChatInfo) => void;
 }
 export interface ChatButtonState {}
@@ -26,8 +29,8 @@ export class ChatButton extends React.Component<ChatButtonProps, ChatButtonState
             }}>
                 <Image style={styles.roundImage} source={{uri: this.props.imageSrc}}></Image>
                     <View style={styles.details}>
-                    <Text style={styles.title}>{this.props.name}</Text>
-                    <Text style={styles.subtitle}>{this.props.location}</Text>
+                    <Text style={{...styles.title, color: this.props.light ? Colors.White : Colors.TextColor}}>{this.props.name}</Text>
+                    <Text style={{...styles.subtitle, color: this.props.light ? Colors.White : Colors.TextColor}}>{this.props.location}</Text>
                 </View>
             </TouchableOpacity>
         )
@@ -38,6 +41,9 @@ const styles = StyleSheet.create({
     root: {
         flexDirection: "row",
         alignItems: "center"
+    },
+    light: {
+        color: Colors.White
     },
     title: {
         fontSize: 19,

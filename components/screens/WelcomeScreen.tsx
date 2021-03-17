@@ -16,6 +16,7 @@ import { RootStackParamList } from '../../services';
 import { StackHeaderProps, StackScreenProps } from '@react-navigation/stack';
 
 import { components } from '../../styles/components';
+import { TextInput } from 'react-native-gesture-handler';
 
 
 type WelcomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Welcome'>;
@@ -24,7 +25,8 @@ export type WelcomeScreenProps = WelcomeScreenNavigationProp & {};
 
 export interface WelcomeScreenState {
     loading: boolean,
-    selectedWebview: string
+    selectedWebview: string,
+    vot: string
 }
 
 export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeScreenState> {
@@ -32,7 +34,8 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
         super(props);
         this.state = {
             loading: false,
-            selectedWebview: "tab"
+            selectedWebview: "tab",
+            vot: "P9.Cp.Cd P9.Cp.Ck P9.Cm"
         }
     }
     static header(props: StackHeaderProps) {
@@ -64,6 +67,17 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                     {
                         text: "Continue",
                         onPress: () => this.props.navigation.navigate("Environment")
+                    }
+                ])
+                return;
+        }
+        const votError = NhsLogin.instance.verifyVot(this.state.vot);
+        if (votError.length > 0){
+            Alert.alert("Vector of trust error", votError,
+                [
+                    {
+                        text: "Ok",
+                        onPress: () => undefined
                     }
                 ])
                 return;
@@ -116,6 +130,12 @@ export class WelcomeScreen extends React.Component<WelcomeScreenProps, WelcomeSc
                             }
                         ]}></NhsDropdown>
                         <Text style={components.label}>Webview</Text>
+                        <TextInput style={components.textField} value={this.state.vot} onChangeText={(text) => {
+                            this.setState({
+                                vot: text
+                            });
+                        }}></TextInput>
+                        <Text style={components.label}>Vectors of Trust</Text>
                         {/* <ChatButton></ChatButton> */}
                     </View> : <View style={styles.mainView}><ActivityIndicator size='large' color="#0000ff"></ActivityIndicator></View>}
             </View>

@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import MMKVStorage from "react-native-mmkv-storage";
 import jwt_decode from "jwt-decode";
 // import { MessagingInstance, setMessagingInstance } from '../services';
@@ -73,7 +73,7 @@ export class NhsLogin {
     fingerprintEnabled: boolean = false;
 
     constructor() {
-        if (NhsLogin.instance){
+        if (NhsLogin.instance) {
             console.warn("NhsLogin instance already exists!");
             return;
         }
@@ -137,9 +137,38 @@ export class NhsLogin {
         await _this.AuthorizationCodeExchange(code);
     }
 
+    verifyVot(vot: string): string{
+        const vots = vot.split(" ");
+        if (vots.length == 0){
+            return "No Vectors of trust";
+        }
+        const err = vots.map((v) => {
+            const components = v.split(".");
+            if (components.length < 2){
+                return "Invalid vot " + v;
+            }
+            return components.map((c, i) => {
+                if (i == 0){
+                    if (["P0", "P5", "P9"].indexOf(c) == -1){
+                        return `Invalid vot ${v}. ${c} must be P0 P5 or P9`;
+                    }
+                }
+                else {
+                    if (["Cp", "Cd", "Ck", "Cm"].indexOf(c) == -1){
+                        return `Invalid vot ${v}. ${c} must be Cp Cd Ck or Cm`
+                    }
+                }
+            }).join("");
+        }).join("");
+        if (err.length == 0){
+            this.config.vtr = `[${vots.map((v) => `"${v}"`).join(",")}]`;
+        }
+        return err;
+    }
+
     idTokenDecode(idToken: string) {
         const payload = jwt_decode(idToken);
-        if (!payload){
+        if (!payload) {
             console.warn("No ID Token payload.");
             return;
         }
@@ -147,27 +176,37 @@ export class NhsLogin {
         console.log(NhsLogin.instance.nhsIdTokenPayload);
     }
 
-    async fingerprintLogin(webviewType: WebViewType, navigationContext: any, onComplete: () => void){
+    async fingerprintLogin(webviewType: WebViewType, navigationContext: any, onComplete: () => void) {
         const authResponse = await new Fido().auth();
         const authResponseJson = JSON.parse(authResponse);
+        if (authResponseJson.error) {
+            Alert.alert("Fingerprint Error", authResponseJson.error,
+                [
+                    {
+                        text: "Ok",
+                        onPress: () => { }
+                    }
+                ]);
+            return;
+        }
         const message = authResponseJson.uafProtocolMessage;
         const url = this.buildAuthoriseUrl() + "&fido_auth_response=" + await new Fido().ToBase64Url(JSON.stringify(message));
         console.log(url);
         this.openInWebview(url, webviewType, navigationContext);
-        
+
         NhsLogin.instance.onIdTokenReceived = onComplete;
     }
 
-    openInWebview(url: string, webviewType: WebViewType, navigationContext: any){
-        if (webviewType == "browser"){
+    openInWebview(url: string, webviewType: WebViewType, navigationContext: any) {
+        if (webviewType == "browser") {
             Linking.openURL(url);
         }
-        if (webviewType == "webview"){
+        if (webviewType == "webview") {
             navigationContext.navigate("LoginWebview", {
                 url
             })
         }
-        if (webviewType == "tab"){
+        if (webviewType == "tab") {
             CustomTabs.openURL(url, {
                 toolbarColor: Colors.Blue,
                 enableDefaultShare: false,
@@ -199,7 +238,7 @@ export class NhsLogin {
         this.idTokenDecode(nhsAuthResponse.id_token);
         this.appAccessToken = nhsAuthResponse.access_token;
         this.chatEnabled = nhsAuthResponse.messaging_enabled;
-        if (nhsAuthResponse.messaging_enabled){
+        if (nhsAuthResponse.messaging_enabled) {
             new Messaging(this.appServerUrl, this.appAccessToken);
         }
         else {
@@ -209,6 +248,9 @@ export class NhsLogin {
 
         if (this.onIdTokenReceived) {
             this.onIdTokenReceived();
+        }
+        else {
+            console.log("onIdTokenReceived not set");
         }
     }
 

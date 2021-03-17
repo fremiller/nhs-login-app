@@ -1,5 +1,6 @@
 package com.nhsloginapp;
 
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.util.Log;
 
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.biometric.BiometricPrompt.PromptInfo;
 import androidx.annotation.RequiresApi;
@@ -82,7 +84,12 @@ public class FidoUAF extends ReactContextBaseJavaModule {
     private RegistrationRequest req;
 
     @ReactMethod
-    public void FidoUafRegister(final ReadableMap params, final Promise promise) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, KeyStoreException, CertificateException, IOException {
+    public void FidoUafRegister(final ReadableMap params, final Promise promise) {
+        String fingerPrintError = canFingerprint(mContext);
+        if (fingerPrintError != ""){
+            promise.resolve("{\"error\": \""+fingerPrintError+"\"}");
+            return;
+        }
         String accessToken = params.getString("accessToken");
         String facetId = params.getString("facetId");
         String url = params.getString("url");
@@ -101,8 +108,13 @@ public class FidoUAF extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void FidoUafAuthenticate(final ReadableMap params, final Promise promise){
+        String fingerPrintError = canFingerprint(mContext);
+        if (fingerPrintError != ""){
+            promise.resolve("{\"error\": \""+fingerPrintError+"\"}");
+            return;
+        }
         String facetId = params.getString("facetId");
-        String url =params.getString("url");
+        String url = params.getString("url");
         auth = new Authentication();
         authRequestResponse = auth.requestUafAuthenticationMessage(facetId, url);
         authOnly = false;
@@ -110,7 +122,7 @@ public class FidoUAF extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void ToBase64Url(final ReadableMap params, Promise promise) throws UnsupportedEncodingException {
+    public void ToBase64Url(final ReadableMap params, Promise promise)  {
         String input = params.getString("input");
         input = input.replaceAll("\\\\\"", "\"");
         promise.resolve(Base64url.INSTANCE.encodeToString(input.getBytes()));
@@ -137,23 +149,44 @@ public class FidoUAF extends ReactContextBaseJavaModule {
         }
     }
 
+    private static String canFingerprint(ReactApplicationContext context){
+        @SuppressLint("WrongConstant") int biometricInfo = BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        if (biometricInfo == BiometricManager.BIOMETRIC_SUCCESS){
+            return "";
+        }
+        if (biometricInfo == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE){
+            return "Your fingerprint reader is not available";
+        }
+        if (biometricInfo == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED){
+            return "You do not have any fingerprints enrolled, enrol one in settings";
+        }
+        if (biometricInfo == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE){
+            return "Your phone does not have an eligible fingerprint reader";
+        }
+        return "";
+    }
+
     private void DoFingerprintReq(Promise promise) {
         FidoUAF mInstance = this;
         UiThreadUtil.runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        Signature signature = null;
-                        try {
-                            signature = Signature.getInstance("SHA256withECDSA");
+                () -> {
+                    Signature signature = null;
+                    try {
+                        signature = Signature.getInstance("SHA256withECDSA");
 
-                        PrivateKey privateKey = fidoKeystore.getKeyPair("test").getPrivate();
+                        KeyPair kp = fidoKeystore.getKeyPair("test");
+                        if (kp == null){
+                            promise.resolve("{\"error\": \"Fingerprint not registered\"}");
+                            return;
+                        }
+                        PrivateKey privateKey = kp.getPrivate();
                         signature.initSign(privateKey);
 
                         BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(signature);
 
                         FragmentActivity fragmentActivity = (FragmentActivity) getCurrentActivity();
                         SignatureCallback signatureCallback = new SignatureCallback(mInstance, promise);
+
                         Executor executor = Executors.newSingleThreadExecutor();
                         BiometricPrompt biometricPrompt = new BiometricPrompt(fragmentActivity, executor, signatureCallback);
                         PromptInfo promptInfo = new PromptInfo.Builder()
@@ -161,11 +194,12 @@ public class FidoUAF extends ReactContextBaseJavaModule {
                                 .setNegativeButtonText("Cancel")
                                 .build();
                         biometricPrompt.authenticate(promptInfo, cryptoObject);
-                        } catch (NoSuchAlgorithmException e) {
-                            e.printStackTrace();
-                        } catch (InvalidKeyException e){
-
-                        }
+                    } catch (NoSuchAlgorithmException e) {
+                        promise.resolve("{\"error\": \"NoSuchAlgorithmException\"}");
+                    } catch (InvalidKeyException e){
+                        promise.resolve("{\"error\": \"InvalidKeyException\"}");
+                    } catch (RuntimeException e) {
+                        promise.resolve("{\"error\": \"Fingerprint not registered with NHS Login.\"}");
                     }
                 }
         );

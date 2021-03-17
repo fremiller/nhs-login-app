@@ -9,10 +9,11 @@ import { NhsButton } from '../NhsButton';
 import { NhsCard } from '../NhsCard';
 import { ObjectTable } from '../ObjectTable';
 import { NhsLogin } from '../NhsLogin';
-import { TextInput } from 'react-native-gesture-handler';
+import { TextInput, ScrollView } from 'react-native-gesture-handler';
 import { components } from '../../styles/components';
-import { ChatInfo, Messaging } from '../Messaging';
+import { ChatInfo, Messaging, Message, DisplayMessage } from '../Messaging';
 import { ChatButton } from '../ChatButton';
+import { ChatMessage } from '../ChatMessage';
 
 type ChatScreenNavigationProps = StackScreenProps<RootStackParamList, 'Chat'>;
 
@@ -21,7 +22,8 @@ export type ChatScreenProps = ChatScreenNavigationProps & {
 }
 
 export interface ChatScreenState {
-    currentText: string
+    currentText: string,
+    messages: DisplayMessage[]
 }
 
 export class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -36,7 +38,7 @@ export class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState
         const chat = props.scene.route.params.chat as ChatInfo;
         return (
             <Animated.View style={{ opacity }}><StatusBar backgroundColor={Colors.Blue}></StatusBar>
-                <NavBar backButtonEnabled={true} left={() => (<ChatButton imageSrc={chat.gp.image} name={chat.gp.name} location={chat.gp.location}></ChatButton>)} /></Animated.View>
+                <NavBar backButtonEnabled={true} left={() => (<ChatButton imageSrc={chat.gp.image} name={chat.gp.name} location={chat.gp.location} light={true}></ChatButton>)} /></Animated.View>
         )
     }
 
@@ -44,10 +46,32 @@ export class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState
 
     constructor(props: ChatScreenProps) {
         super(props);
-        this.currentChat = props.chat;
+        this.currentChat = props.route.params.chat;
         this.state = {
-            currentText: ""
+            currentText: "",
+            messages: []
         }
+    }
+
+    componentDidMount(){
+        this.downloadCurrentMessages();
+        Messaging.instance.registerOnMessageHandler((msg) => {
+            this.setState((prevState) => {
+                return {
+                    messages: [...prevState.messages, msg]
+                }
+            })
+        })
+    }
+
+    async downloadCurrentMessages(){
+        let res = await Messaging.instance.getMessages(this.currentChat.gp.id);
+        if (!res.messages){
+            res.messages = [];
+        }
+        this.setState({
+            messages: res.messages
+        })
     }
 
     render() {
@@ -65,6 +89,13 @@ export class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState
                         }} disableMargin={true}></NhsButton>
                     </View>
                 </View>
+                <ScrollView style={styles.scrollView} snapToEnd={true}>
+                {this.state.messages.map((msg) => {
+                    return (
+                        <ChatMessage key={msg.time} message={msg}></ChatMessage>
+                    )
+                })}
+                </ScrollView>
             </View>
         )
     }
@@ -75,11 +106,19 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.BackgroundColor
     },
+    scrollView: {
+        display: "flex",
+        flex: 1,
+        height: "100%",
+        flexShrink: 1,
+        flexDirection: "column-reverse",
+        marginBottom: 10
+    },
     submitButton: {
         flexShrink: 0,
         width: 85,
         margin: 0,
-        padding: 0
+        padding: 0,
     },
     submitText: {
         width: "100%",
@@ -88,7 +127,8 @@ const styles = StyleSheet.create({
         height: 55
     },
     submitRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        flexShrink: 0
     },
     title: {
         fontSize: 21,
@@ -105,7 +145,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flex: 1,
         flexDirection: 'column-reverse',
-        marginBottom: 40,
+        marginBottom: 5,
         marginHorizontal: 20,
     }
 });
