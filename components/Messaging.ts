@@ -19,6 +19,16 @@ export interface GPUser {
     id: string
 }
 
+export type MessageType = "text" | "image"
+
+export interface Message {
+    type: MessageType,
+    data: string,
+    time: number
+}
+
+export type DisplayMessage = Message & {gp: boolean}
+
 export class Messaging {
     sio: typeof Socket
     app_token: string
@@ -42,8 +52,13 @@ export class Messaging {
                 token: app_token
             }
         });
-        this.sio.on("connected", () => {
-            
+        this.sio.on("message:text", (msg: Message, gp: boolean) => {
+            if(this.onMessageHandler){
+                this.onMessageHandler({
+                    ...msg,
+                    gp
+                });
+            }
         });
     }
 
@@ -61,5 +76,29 @@ export class Messaging {
             }
         }).then(res => res.json()).catch(e=>console.log(e));
         return chats;
+    }
+
+    async getMessages(id: string): Promise<{messages?: DisplayMessage[], error?: String}>{
+        const messages = await fetch(this.server_url + `/chat/${id}?env=` + NhsLogin.instance.env.name, {
+            headers: {
+                "Authorization": "Bearer " + this.app_token
+            }
+        }).then(res => res.json()).catch(e=>console.log(e));
+        console.log(messages);
+        const {gpToPatient, patientToGp} = messages as {
+            gpToPatient: Message[],
+            patientToGp: Message[]
+        };
+        let messagesCombined = gpToPatient.map((g) => {return {...g, gp: true} as DisplayMessage}).concat(patientToGp.map((g) => {return {...g, gp: false} as DisplayMessage}));
+        messagesCombined.sort((a, b) => a.time - b.time);
+        return {
+            messages: messagesCombined
+        }
+    }
+
+    onMessageHandler?: (msg: DisplayMessage) => void;
+
+    registerOnMessageHandler(handler: (msg: DisplayMessage) => void){
+        this.onMessageHandler = handler;
     }
 }

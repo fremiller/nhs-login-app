@@ -29,5 +29,7 @@ export const components = StyleSheet.create({
     },
     label: {
         fontSize: 20,
+        fontWeight: "bold",
+        marginTop: 5
     }
 });
