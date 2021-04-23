@@ -15,16 +15,18 @@ import java.security.Signature;
 public class SignatureCallback extends BiometricPrompt.AuthenticationCallback {
     private FidoUAF main;
     private Promise promise;
-    public SignatureCallback(FidoUAF main, Promise promise){
+    private boolean auth;
+    public SignatureCallback(FidoUAF main, Promise promise, boolean auth){
         this.main = main;
         this.promise = promise;
+        this.auth = auth;
     }
 
     @Override
     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
         super.onAuthenticationSucceeded(result);
         try {
-            main.FingerprintResponse(result.getCryptoObject(), promise);
+            main.FingerprintResponse(result.getCryptoObject(), this.auth, promise);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidKeyException e) {

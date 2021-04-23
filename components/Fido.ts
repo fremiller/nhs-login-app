@@ -5,11 +5,10 @@ import ReactNativeBiometrics from "react-native-biometrics";
 import ReactNative, { Alert } from 'react-native';
 
 const { FidoUAF } = ReactNative.NativeModules;
-const FacetID = "android:apk-key-hash-sha256:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU";
 
 export class Fido {
     async register(accessToken: string, onError: (err: string) => void) {
-        const result: string = await FidoUAF.FidoUafRegister({ accessToken: accessToken, facetId: FacetID, url: "https://uaf.sandpit.signin.nhs.uk/regRequest" });
+        const result: string = await FidoUAF.FidoUafRegister({ accessToken: accessToken, url: NhsLogin.instance.currentOpenIdConfiguration!.fido_uaf_registration_request_endpoint });
         const resultJson = JSON.parse(result);
         if (resultJson.error) {
             Alert.alert("Fingerprint Error", resultJson.error,
@@ -27,19 +26,23 @@ export class Fido {
             return;
         }
         console.log(resultJson);
-        const res = await fetch("https://uaf.sandpit.signin.nhs.uk/regResponse", {
+        const res = await fetch(NhsLogin.instance.currentOpenIdConfiguration!.fido_uaf_registration_response_endpoint, {
             method: "POST",
             body: resultJson
         }).then((res) => res.json()).catch((err) => {
             console.log(err);
         });
         console.log(res);
+
+        const username = await FidoUAF.GetUsername({});
+        await NhsLogin.instance.saveFidoUsername(username);
     }
 
     async auth(): Promise<string> {
+        const username = await NhsLogin.instance.getFidoUsername();
         const result: string = await FidoUAF.FidoUafAuthenticate({
-            facetId: FacetID,
-            url: "https://uaf.sandpit.signin.nhs.uk/authRequest"
+            url: NhsLogin.instance.currentOpenIdConfiguration!.fido_uaf_authentication_request_endpoint,
+            username
         });
 
         return result;

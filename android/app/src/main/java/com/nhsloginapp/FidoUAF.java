@@ -35,6 +35,7 @@ import com.nhs.online.fidoclient.uaf.crypto.FidoKeystoreAndroidM;
 import com.nhs.online.fidoclient.uaf.crypto.FidoSigner;
 import com.nhs.online.fidoclient.uaf.crypto.FidoSignerAndroidM;
 import com.nhs.online.fidoclient.uaf.crypto.KeyCodec;
+import com.nhs.online.fidoclient.utils.fidoHelpers;
 import com.nhs.online.fidoclient.uaf.message.AuthenticationRequest;
 import com.nhs.online.fidoclient.uaf.message.RegistrationRequest;
 import com.nhs.online.fidoclient.uaf.message.RegistrationResponse;
@@ -77,9 +78,7 @@ public class FidoUAF extends ReactContextBaseJavaModule {
 
     private Registration reg;
 
-    FidoKeystore fidoKeystore;
-
-    private boolean authOnly = true;
+    private FidoKeystore fidoKeystore;
 
     private RegistrationRequest req;
 
@@ -91,20 +90,21 @@ public class FidoUAF extends ReactContextBaseJavaModule {
             return;
         }
         String accessToken = params.getString("accessToken");
-        String facetId = params.getString("facetId");
+        String facetId = fidoHelpers.INSTANCE.getFacetId(mContext);
         String url = params.getString("url");
-        // Log.d("FidoUAFRegister");
+
         reg = new Registration();
         String regMessage = reg.requestUafRegistrationMessage(facetId, accessToken, url);
         req = reg.getRegistrationRequest(regMessage);
-        KeyPair keyPair = fidoKeystore.generateKeyPair("test");
-        authOnly = true;
-        DoFingerprintReq(promise);
+        authUsername = req.getUsername();
+        KeyPair keyPair = fidoKeystore.generateKeyPair(req.getUsername());
+        DoFingerprintReq(promise, false);
     }
 
     private AuthenticationRequest authReq;
     private String authRequestResponse;
     private Authentication auth;
+    private String authUsername;
 
     @ReactMethod
     public void FidoUafAuthenticate(final ReadableMap params, final Promise promise){
@@ -113,12 +113,12 @@ public class FidoUAF extends ReactContextBaseJavaModule {
             promise.resolve("{\"error\": \""+fingerPrintError+"\"}");
             return;
         }
-        String facetId = params.getString("facetId");
+        String facetId = fidoHelpers.INSTANCE.getFacetId(mContext);
         String url = params.getString("url");
+        authUsername = params.getString("username");
         auth = new Authentication();
         authRequestResponse = auth.requestUafAuthenticationMessage(facetId, url);
-        authOnly = false;
-        DoFingerprintReq(promise);
+        DoFingerprintReq(promise, true);
     }
 
     @ReactMethod
@@ -128,23 +128,23 @@ public class FidoUAF extends ReactContextBaseJavaModule {
         promise.resolve(Base64url.INSTANCE.encodeToString(input.getBytes()));
     }
 
-//    private String getUsername(){
-////        SharedPreferences settings = mContext.getSharedPreferences("Preferances")
-//    }
+    @ReactMethod
+    public void GetUsername(final ReadableMap params, Promise promise) {
+        promise.resolve(authUsername);
+    }
 
-    public void FingerprintResponse(BiometricPrompt.CryptoObject crypto, Promise promise) throws NoSuchAlgorithmException, InvalidKeyException {
-        if (authOnly){
+
+    public void FingerprintResponse(BiometricPrompt.CryptoObject crypto, boolean isAuth, Promise promise) throws NoSuchAlgorithmException, InvalidKeyException {
+        if (!isAuth){
             Signature signature = crypto.getSignature();
-            RegistrationResponse res = reg.processRequest(req, new RegAssertionBuilder(fidoKeystore.getPublicKey("test"), signature, "foo"));
+            RegistrationResponse res = reg.processRequest(req, new RegAssertionBuilder(fidoKeystore.getPublicKey(req.getUsername()), signature, "test"));
             Gson g = new Gson();
             promise.resolve(g.toJson(res));
         }
         else {
             FidoSigner signer = new FidoSignerAndroidM(crypto.getSignature());
-            KeyPair pair = fidoKeystore.getKeyPair("test");
+            KeyPair pair = fidoKeystore.getKeyPair(authUsername);
             String res = auth.auth(authRequestResponse, new AuthAssertionBuilder(signer, pair, "foo"));
-//            String b64 = Base64url.INSTANCE.encodeToString(res.getBytes());
-//            auth.getUafProtocolMessage(res);
             promise.resolve(res);
         }
     }
@@ -166,7 +166,7 @@ public class FidoUAF extends ReactContextBaseJavaModule {
         return "";
     }
 
-    private void DoFingerprintReq(Promise promise) {
+    private void DoFingerprintReq(Promise promise, boolean auth) {
         FidoUAF mInstance = this;
         UiThreadUtil.runOnUiThread(
                 () -> {
@@ -185,7 +185,7 @@ public class FidoUAF extends ReactContextBaseJavaModule {
                         BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(signature);
 
                         FragmentActivity fragmentActivity = (FragmentActivity) getCurrentActivity();
-                        SignatureCallback signatureCallback = new SignatureCallback(mInstance, promise);
+                        SignatureCallback signatureCallback = new SignatureCallback(mInstance, promise, auth);
 
                         Executor executor = Executors.newSingleThreadExecutor();
                         BiometricPrompt biometricPrompt = new BiometricPrompt(fragmentActivity, executor, signatureCallback);
