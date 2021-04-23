@@ -39,6 +39,25 @@ export interface AuthConfiguration {
 
 type WebViewType = "browser" | "webview" | "tab";
 
+export interface OpenIDConfiguration {
+    issuer: string;
+    authorization_endpoint: string;
+    token_endpoint: string;
+    jwks_uri: string;
+    scopes_supported: string[];
+    response_types_supported: string[];
+    subject_types_supported: string[];
+    id_token_signing_alg_values_supported: string[];
+    claims_supported: string[];
+    userinfo_endpoint: string;
+    token_endpoint_auth_signing_alg_values_supported: string[];
+    token_endpoint_auth_methods_supported: string[];
+    fido_uaf_authentication_request_endpoint: string;
+    fido_uaf_registration_request_endpoint: string;
+    fido_uaf_registration_response_endpoint: string;
+    fido_uaf_deregistration_endpoint: string;
+}
+
 export class NhsLogin {
     static instance: NhsLogin;
     config: AuthConfiguration = {
@@ -72,6 +91,8 @@ export class NhsLogin {
 
     fingerprintEnabled: boolean = false;
 
+    currentOpenIdConfiguration?: OpenIDConfiguration;
+
     constructor() {
         if (NhsLogin.instance) {
             console.warn("NhsLogin instance already exists!");
@@ -82,12 +103,49 @@ export class NhsLogin {
         NhsLogin.instance = this;
     }
 
+    async saveFidoUsername(username: string) {
+        await this.mmkv.setStringAsync("fido_username", username);
+    }
+
+    getFidoUsername(): Promise<string> {
+        return this.mmkv.getStringAsync("fido_username");
+    }
+
     async updateEnvironment(appServerUrl: string, env: Environment) {
+        const openIdConfig = await this.getOpenIDConfiguration(env);
+        if (!openIdConfig){
+            Alert.alert("Environment Error", "Could not connect to login server. Check server URL",
+                [
+                    {
+                        text: "Ok",
+                        onPress: () => { }
+                    }
+                ]);
+            return;
+        }
         await this.mmkv.setStringAsync("server_url", appServerUrl);
         await this.mmkv.setMapAsync("env", env);
         this.appServerUrl = appServerUrl;
         this.env = env;
         this.updateConfigFromEnv();
+    }
+
+    async getOpenIDConfiguration(env: Environment): Promise<OpenIDConfiguration|undefined> {
+        const response = await fetch(env.url + "/.well-known/openid-configuration").then((res) => {
+            return res.json()
+        }).catch((err) => {
+            return undefined;
+        });
+        return response;
+    }
+
+    async getCurrentOpenIDConfiguration(): Promise<OpenIDConfiguration> {
+        if (this.currentOpenIdConfiguration){
+            return this.currentOpenIdConfiguration;
+        }
+        const config = await this.getOpenIDConfiguration(this.env);
+        this.currentOpenIdConfiguration = config;
+        return config!;
     }
 
     updateConfigFromEnv() {
@@ -102,6 +160,7 @@ export class NhsLogin {
             this.env = new_env;
         }
         console.log(this.env);
+        this.getCurrentOpenIDConfiguration();
         this.updateConfigFromEnv();
 
         const { biometryType } = await ReactNativeBiometrics.isSensorAvailable();
@@ -113,7 +172,8 @@ export class NhsLogin {
     }
 
     buildAuthoriseUrl(): string {
-        return this.config.issuer + `/authorize?client_id=${this.config.clientId}&scope=${this.config.scopes.join("%20")}&response_type=code&redirect_uri=${this.config.redirectUrl}`
+        console.log(this.currentOpenIdConfiguration);
+        return this.currentOpenIdConfiguration!.authorization_endpoint + `?client_id=${this.config.clientId}&scope=${this.config.scopes.join("%20")}&response_type=code&redirect_uri=${this.config.redirectUrl}`
     }
 
     onIdTokenReceived?: () => void;
