@@ -7,11 +7,11 @@ import React from 'react';
 import App from '../App';
 
 // Note: test renderer must be required after react-native.
-import renderer, { act } from 'react-test-renderer';
+import renderer, {act} from 'react-test-renderer';
 
 it('renders correctly', () => {
   let root: renderer.ReactTestRenderer;
-  act(()=>{
+  act(() => {
     root = renderer.create(<App />);
   });
 

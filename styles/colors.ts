@@ -10,7 +10,7 @@
 // We use the word color, not colour, for variables.
 //
 
-export const BackgroundColor = "#f0f4f5";
+export const BackgroundColor = '#f0f4f5';
 
 // sass-lint:disable no-color-hex
 export const Blue = '#005eb8';
